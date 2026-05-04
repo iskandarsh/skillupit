@@ -13,6 +13,7 @@ class Attendance extends Model
         'class_session_id',
         'user_id',
         'is_present',
+        'order_id', // 🔥 TAMBAHAN INI
     ];
 
     protected $casts = [
@@ -35,5 +36,11 @@ class Attendance extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    // Attendance milik order
+    public function order()
+    {
+        return $this->belongsTo(Order::class);
     }
 }

@@ -44,12 +44,19 @@ class AttendanceController extends Controller
             return back()->with('info', 'Kamu sudah absen di sesi ini');
         }
 
+        $activeOrder = \App\Models\Order::where('email', $user->email)
+            ->where('kelas_id', $schedule->kelas_id)
+            ->where('status_kelas', 0)
+            ->latest()
+            ->first();
+
         // =========================
         // SIMPAN ABSENSI
         // =========================
         DB::table('attendances')->insert([
             'user_id' => $user->id,
             'class_session_id' => $session->id,
+            'order_id' => $activeOrder?->id, // 🔥 TAMBAHAN INI
             'is_present' => 1,
             'created_at' => now(),
             'updated_at' => now(),
@@ -59,23 +66,29 @@ class AttendanceController extends Controller
         // =========================
         // 🔥 CEK LAST SESSION
         // =========================
-        $isLastSession = $this->isLastSession($schedule, $session);
+        if ((int) $session->is_end === 1) {
 
-        if ($isLastSession) {
-
-            $exists = Referral::where('user_id', $user->id)
-                ->where('kelas_id', $schedule->kelas_id)
-                ->first();
-
-            if (!$exists) {
-                Referral::create([
-                    'kode' => strtoupper('REF-' . Str::random(6)),
+            $referral = Referral::firstOrCreate(
+                [
                     'user_id' => $user->id,
-                    'kelas_id' => NULL,
-                    'disc' => 10 // default diskon 10% (bebas kamu ubah)
-                ]);
-            }
+                    'kelas_id' => $schedule->kelas_id,
+                ],
+                [
+                    'kode' => strtoupper('REF-' . Str::random(6)),
+                    'disc' => 10
+                ]
+            );
+
+            DB::table('sertifikat')->insert([
+                'user_id' => $user->id,
+                'kelas_id' => $schedule->kelas_id,
+                'order_id' => $activeOrder?->id,
+                'no' => strtoupper('CERT-' . Str::random(8)),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
         }
+
         return back()->with('success', 'Absensi berhasil!');
     }
 
@@ -121,14 +134,65 @@ class AttendanceController extends Controller
     //         ->exists();
     // }
 
+    // private function canJoinSchedule(Schedule $schedule, int $userId): bool
+    // {
+    //     $currentSession = $this->getCurrentSession($schedule);
+    //     if (!$currentSession) return true;
+
+    //     // =========================
+    //     // 🔥 CEK SESSION 1 SUDAH HADIR
+    //     // =========================
+    //     $session1 = $schedule->sessions()
+    //         ->orderBy('session_order', 'asc')
+    //         ->first();
+
+    //     if ($session1) {
+    //         $alreadyPresentSession1 = DB::table('attendances')
+    //             ->where('class_session_id', $session1->id)
+    //             ->where('user_id', $userId)
+    //             ->where('is_present', 1)
+    //             ->exists();
+
+    //         // kalau sudah hadir session 1 → bebas lanjut semua session
+    //         if ($alreadyPresentSession1) {
+    //             return true;
+    //         }
+    //     }
+
+    //     // =========================
+    //     // RULE LAMA (CHAIN VALIDATION)
+    //     // =========================
+    //     $previousSchedule = $this->getPreviousSchedule($schedule);
+
+    //     if (!$previousSchedule) return true;
+
+    //     $lastSession = $previousSchedule->sessions()
+    //         ->orderBy('session_order', 'desc')
+    //         ->first();
+
+    //     if (!$lastSession) return true;
+
+    //     return DB::table('attendances')
+    //         ->where('class_session_id', $lastSession->id)
+    //         ->where('user_id', $userId)
+    //         ->where('is_present', 1)
+    //         ->exists();
+    // }
+
     private function canJoinSchedule(Schedule $schedule, int $userId): bool
     {
+        // ✅ FIX UTAMA: user baru selalu boleh join
+        $hasAnyAttendance = DB::table('attendances')
+            ->where('user_id', $userId)
+            ->exists();
+
+        if (!$hasAnyAttendance) {
+            return true;
+        }
+
         $currentSession = $this->getCurrentSession($schedule);
         if (!$currentSession) return true;
 
-        // =========================
-        // 🔥 CEK SESSION 1 SUDAH HADIR
-        // =========================
         $session1 = $schedule->sessions()
             ->orderBy('session_order', 'asc')
             ->first();
@@ -140,15 +204,11 @@ class AttendanceController extends Controller
                 ->where('is_present', 1)
                 ->exists();
 
-            // kalau sudah hadir session 1 → bebas lanjut semua session
             if ($alreadyPresentSession1) {
                 return true;
             }
         }
 
-        // =========================
-        // RULE LAMA (CHAIN VALIDATION)
-        // =========================
         $previousSchedule = $this->getPreviousSchedule($schedule);
 
         if (!$previousSchedule) return true;

@@ -114,7 +114,15 @@
                     Simpan
                 </button>
             </div>
-
+            <div id="loadingOverlay" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center z-[999]">
+                <div class="bg-white px-6 py-4 rounded-xl shadow flex items-center gap-3">
+                    <svg class="animate-spin w-5 h-5 text-indigo-600" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                    </svg>
+                    <span class="text-sm font-medium text-gray-700">Menyimpan...</span>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -146,6 +154,14 @@
                 placeholder: "Pilih Kelas",
                 allowClear: true
             });
+        }
+
+        function showLoading() {
+            $('#loadingOverlay').removeClass('hidden');
+        }
+
+        function hideLoading() {
+            $('#loadingOverlay').addClass('hidden');
         }
 
         const store = new DevExpress.data.CustomStore({
@@ -311,6 +327,7 @@
             $('#modalSchedule').addClass('hidden');
         }
 
+
         function save() {
             const id = $('#schedule_id').val();
 
@@ -325,6 +342,8 @@
                 is_last_session: $('#is_last_session').is(':checked') ? 1 : 0
             };
 
+            showLoading();
+
             if (mode === "create") {
                 $.post("/schedule", data)
                     .done(() => {
@@ -334,19 +353,28 @@
                     })
                     .fail(err => {
                         toastr.error(err.responseJSON?.message || "Gagal menyimpan schedule");
+                    })
+                    .always(() => {
+                        hideLoading();
                     });
+
             } else {
                 $.ajax({
-                    url: "/schedule/" + id,
-                    method: "PUT",
-                    data: data
-                }).done(() => {
-                    toastr.success("Schedule diupdate");
-                    closeModal();
-                    grid.refresh();
-                }).fail(err => {
-                    toastr.error(err.responseJSON?.message || "Gagal update schedule");
-                });
+                        url: "/schedule/" + id,
+                        method: "PUT",
+                        data: data
+                    })
+                    .done(() => {
+                        toastr.success("Schedule diupdate");
+                        closeModal();
+                        grid.refresh();
+                    })
+                    .fail(err => {
+                        toastr.error(err.responseJSON?.message || "Gagal update schedule");
+                    })
+                    .always(() => {
+                        hideLoading();
+                    });
             }
         }
 

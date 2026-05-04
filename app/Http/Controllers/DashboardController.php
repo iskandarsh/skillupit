@@ -9,6 +9,7 @@ use App\Models\Absensi;
 use App\Models\Order;
 use App\Models\Referral;
 use App\Models\Schedule;
+use App\Models\Sertifikat;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -214,19 +215,57 @@ class DashboardController extends Controller
         $jadwalHariIni = collect();
         $jadwalMendatang = collect();
 
+        $seenSessionOrders = []; // 🔥 penting untuk dedup
+
         foreach ($schedules as $schedule) {
 
-            // ambil session pertama (current session)
             $session = $schedule->sessions->sortBy('session_order')->first();
             if (!$session) continue;
 
-            // status hadir user di session ini
+            $sessionOrder = $session->session_order;
+
+            // =========================
+            // 🔥 CEK ATTENDANCE
+            // =========================
             $attendance = DB::table('attendances')
                 ->where('class_session_id', $session->id)
                 ->where('user_id', $user->id)
                 ->first();
 
+            // =========================
+            // 🔥 RULE DUPLICATE FIX
+            // =========================
+            if (isset($seenSessionOrders[$sessionOrder])) {
+
+                // kalau sudah ada sebelumnya TANPA attendance
+                // tapi sekarang ADA attendance → replace
+                if ($attendance && !$seenSessionOrders[$sessionOrder]['has_attendance']) {
+                    $seenSessionOrders[$sessionOrder] = [
+                        'schedule' => $schedule,
+                        'attendance' => $attendance
+                    ];
+                }
+
+                continue;
+            }
+
+            // simpan pertama kali
+            $seenSessionOrders[$sessionOrder] = [
+                'schedule' => $schedule,
+                'attendance' => $attendance
+            ];
+        }
+
+        // =========================
+        // ambil hasil final
+        // =========================
+        foreach ($seenSessionOrders as $data) {
+
+            $schedule = $data['schedule'];
+            $attendance = $data['attendance'];
+
             $absen_status = null;
+
             if ($attendance && $attendance->is_present == 1) {
                 $absen_status = 'hadir';
             } elseif ($attendance && $attendance->is_present == 0) {
@@ -237,18 +276,29 @@ class DashboardController extends Controller
                 'id' => $schedule->id,
                 'kelas' => $schedule->kelas,
                 'mentor' => (object)['name' => 'Mentor'],
+                'date' => $schedule->date,
                 'jam_mulai' => $schedule->start_time,
                 'jam_selesai' => $schedule->end_time,
                 'absen_status' => $absen_status,
                 'can_join' => $this->canJoinSchedule($schedule, $user->id),
             ];
 
-            if ($schedule->date == $today) {
+            if ($schedule->date == now()->toDateString()) {
                 $jadwalHariIni->push($item);
-            } else {
+            } elseif ($schedule->date > now()->toDateString()) {
                 $jadwalMendatang->push($item);
             }
         }
+
+
+
+        // =========================
+        // 🏆 SERTIFIKAT USER
+        // =========================
+        $certificates = Sertifikat::with(['kelas', 'order']) // Load relasi kelas dan order
+            ->where('user_id', $user->id)
+            ->latest()
+            ->get();
 
         return view('dashboard', compact(
             'totalKelas',
@@ -258,48 +308,26 @@ class DashboardController extends Controller
             'jadwalHariIni',
             'jadwalMendatang',
             'myKelas',
-            'referrals'
+            'referrals',
+            'certificates'
         ));
     }
 
-    // private function canJoinSchedule(Schedule $schedule, int $userId): bool
-    // {
-    //     // SESSION 1 selalu boleh
-    //     $currentSession = $this->getCurrentSession($schedule);
-    //     if (!$currentSession) return true;
-
-    //     if ((int)$currentSession->session_order === 1) {
-    //         return true;
-    //     }
-
-    //     // cari schedule sebelumnya
-    //     $previousSchedule = $this->getPreviousSchedule($schedule);
-
-    //     if (!$previousSchedule) return true;
-
-    //     // ambil session terakhir dari schedule sebelumnya
-    //     $lastSession = $previousSchedule->sessions()
-    //         ->orderBy('session_order', 'desc')
-    //         ->first();
-
-    //     if (!$lastSession) return true;
-
-    //     // WAJIB SUDAH PRESENT DI SESSION SEBELUMNYA
-    //     return DB::table('attendances')
-    //         ->where('class_session_id', $lastSession->id)
-    //         ->where('user_id', $userId)
-    //         ->where('is_present', 1)
-    //         ->exists();
-    // }
 
     private function canJoinSchedule(Schedule $schedule, int $userId): bool
     {
+        // ✅ FIX UTAMA: user baru selalu boleh join
+        $hasAnyAttendance = DB::table('attendances')
+            ->where('user_id', $userId)
+            ->exists();
+
+        if (!$hasAnyAttendance) {
+            return true;
+        }
+
         $currentSession = $this->getCurrentSession($schedule);
         if (!$currentSession) return true;
 
-        // =========================
-        // 🔥 CEK SESSION 1 SUDAH HADIR
-        // =========================
         $session1 = $schedule->sessions()
             ->orderBy('session_order', 'asc')
             ->first();
@@ -311,15 +339,11 @@ class DashboardController extends Controller
                 ->where('is_present', 1)
                 ->exists();
 
-            // kalau sudah hadir session 1 → bebas lanjut semua session
             if ($alreadyPresentSession1) {
                 return true;
             }
         }
 
-        // =========================
-        // RULE LAMA (CHAIN VALIDATION)
-        // =========================
         $previousSchedule = $this->getPreviousSchedule($schedule);
 
         if (!$previousSchedule) return true;
@@ -341,6 +365,7 @@ class DashboardController extends Controller
     {
         return $schedule->sessions()->orderBy('session_order', 'asc')->first();
     }
+
 
     private function getPreviousSchedule(Schedule $schedule)
     {

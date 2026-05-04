@@ -84,70 +84,6 @@
             @endforelse
         </div>
 
-        <div class="space-y-5 mt-10">
-            <div class="flex items-center justify-between">
-                <h3 class="text-xl font-extrabold text-gray-900 flex items-center gap-2">
-                    🏆 Sertifikat Kamu
-                </h3>
-
-                <span class="text-xs font-bold px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full">
-                    {{ $certificates->count() }} Earned
-                </span>
-            </div>
-
-            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                @forelse($certificates as $cert)
-                <button
-                    onclick="openCertModal(
-                        '{{ addslashes(Auth::user()->name) }}', 
-                        '{{ addslashes($cert->kelas->nama_kelas ?? 'SkillUpIT Program') }}', 
-                        '{{ $cert->no }}', 
-                        '{{ \Carbon\Carbon::parse($cert->order->created_at)->translatedFormat('d F Y') }}'
-                    )"
-                    class="group relative bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 text-left overflow-hidden">
-
-                    <!-- glow effect -->
-                    <div class="absolute -top-10 -right-10 w-32 h-32 bg-indigo-100 rounded-full blur-2xl opacity-40 group-hover:opacity-70 transition"></div>
-
-                    <div class="relative">
-                        <div class="flex items-center justify-between">
-                            <div class="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 text-lg">
-                                🏅
-                            </div>
-
-                            <span class="text-[10px] px-2 py-1 bg-emerald-50 text-emerald-600 font-bold rounded-full">
-                                CERTIFIED
-                            </span>
-                        </div>
-
-                        <h4 class="mt-4 font-bold text-gray-900 group-hover:text-indigo-600 transition">
-                            {{ $cert->kelas->nama_kelas ?? 'SkillUpIT Program' }}
-                        </h4>
-
-                        <p class="text-xs text-gray-500 mt-1">
-                            Certificate Code: <span class="font-semibold">{{ $cert->no }}</span>
-                        </p>
-
-                        <div class="mt-4 flex items-center justify-between">
-                            <span class="text-[10px] text-gray-400">
-                                Click to view
-                            </span>
-
-                            <span class="text-indigo-500 text-xs font-bold group-hover:translate-x-1 transition">
-                                Open →
-                            </span>
-                        </div>
-                    </div>
-                </button>
-                @empty
-                <div class="col-span-full bg-gray-50 border border-dashed rounded-2xl p-10 text-center">
-                    <div class="text-4xl">🏆</div>
-                    <p class="text-sm text-gray-500 mt-2">Belum ada sertifikat yang tersedia</p>
-                </div>
-                @endforelse
-            </div>
-        </div>
-
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             @php
             $stats = [
@@ -262,12 +198,8 @@
                     <div class="group bg-white border border-gray-100 p-5 rounded-2xl shadow-sm hover:shadow-md transition-all">
                         <div class="flex items-center gap-4 mb-3">
                             <div class="bg-indigo-50 text-indigo-600 font-bold p-2 rounded-lg text-center min-w-[50px]">
-                                <p class="text-[10px] uppercase leading-none mb-1">
-                                    {{ \Carbon\Carbon::parse($jadwal->date)->translatedFormat('M') }}
-                                </p>
-                                <p class="text-lg leading-none">
-                                    {{ \Carbon\Carbon::parse($jadwal->date)->format('d') }}
-                                </p>
+                                <p class="text-[10px] uppercase leading-none mb-1">Mei</p>
+                                <p class="text-lg leading-none">05</p>
                             </div>
                             <h4 class="font-bold text-gray-800 leading-tight">{{ $jadwal->kelas->nama_kelas }}</h4>
                         </div>
@@ -359,57 +291,6 @@
         </div>
     </div>
 
-
-    <div id="certModal"
-        class="fixed inset-0 hidden items-center justify-center bg-black/70 backdrop-blur-sm z-50 p-4">
-
-        <div class="relative w-full max-w-4xl animate-[fadeIn_0.25s_ease]">
-
-            <!-- CLOSE -->
-            <button onclick="closeCertModal()"
-                class="absolute -top-12 right-0 text-white text-2xl font-bold hover:scale-110 transition">
-                ✕
-            </button>
-
-            <!-- CERTIFICATE FRAME -->
-            <div class="relative rounded-2xl overflow-hidden shadow-2xl border border-white/10 mx-auto" style="max-width: 900px;">
-
-                <img src="{{ asset('uploads/sertif/sertif.png') }}" class="w-full h-auto block">
-
-                <div class="absolute inset-0 flex flex-col items-center">
-
-                    <div class="absolute" style="top: 30%;">
-                        <p id="certCode" class="text-[#e11d48] text-[1.1vw] font-medium tracking-widest"></p>
-                    </div>
-
-                    <div class="absolute" style="top: 45%; width: 80%;">
-                        <h2 id="certName" class="text-[#1a1a1a] text-[2.8vw] font-bold text-center uppercase tracking-tight"></h2>
-                    </div>
-
-                    <div class="absolute" style="top: 55%; width: 85%;">
-                        <p id="certDate" class="text-[#333] text-[1.3vw] text-center font-medium leading-relaxed">
-                        </p>
-                    </div>
-
-                </div>
-            </div>
-            <!-- ACTION -->
-            <div class="flex justify-end mt-4 gap-3">
-
-                <button onclick="closeCertModal()"
-                    class="px-4 py-2 rounded-xl bg-white/10 text-white text-xs font-bold hover:bg-white/20 transition">
-                    Close
-                </button>
-
-                <a href="{{ asset('uploads/sertif/sertif.png') }}"
-                    download
-                    class="px-5 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 transition">
-                    Download
-                </a>
-            </div>
-        </div>
-    </div>
-
     <style>
         @keyframes spin-slow {
             from {
@@ -443,30 +324,5 @@
         }
     </style>
 
-    <script>
-        function openCertModal(name, kelas, code, tanggal) {
-            const elName = document.getElementById('certName');
-            const elCode = document.getElementById('certCode');
-            const elDate = document.getElementById('certDate');
 
-            if (elName) elName.innerText = name;
-            if (elCode) elCode.innerText = "NO: " + code;
-
-            // Menggabungkan kalimat dengan Nama Kelas dan Tanggal
-            if (elDate) {
-                elDate.innerText = "Telah menyelesaikan pelatihan " + kelas + " pada tanggal " + tanggal;
-            }
-
-            document.getElementById('certModal').classList.remove('hidden');
-            document.getElementById('certModal').classList.add('flex');
-        }
-
-        function closeCertModal() {
-            const modal = document.getElementById('certModal');
-            if (modal) {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            }
-        }
-    </script>
 </x-app-layout>

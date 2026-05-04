@@ -164,6 +164,7 @@ class ScheduleController extends Controller
 
         $participants = Order::where('kelas_id', $schedule->kelas_id)
             ->where('status', 'paid')
+            ->where('status_kelas', 0)
             ->get();
 
         $users = User::whereIn('email', $participants->pluck('email'))
@@ -176,65 +177,193 @@ class ScheduleController extends Controller
             ->pluck('user_id')
             ->toArray();
 
-        foreach ($participants as $order) {
 
+        $dtStart = date('Ymd\THis', strtotime($schedule->start_time));
+        $dtEnd = date('Ymd\THis', strtotime($schedule->end_time));
+        $dtStamp = date('Ymd\THis');
+        $uid = uniqid();
+
+        $icsContent = "BEGIN:VCALENDAR\n" .
+            "VERSION:2.0\n" .
+            "PROID:-//SkillUpIT//Calendar//ID\n" .
+            "BEGIN:VEVENT\n" .
+            "DTSTAMP:{$dtStamp}Z\n" .
+            "DTSTART:{$dtStart}Z\n" .
+            "DTEND:{$dtEnd}Z\n" .
+            "UID:{$uid}\n" .
+            "SUMMARY:{$schedule->title}\n" .
+            "LOCATION:{$schedule->link}\n" .
+            "END:VEVENT\n" .
+            "END:VCALENDAR";
+
+
+        foreach ($participants as $order) {
             $user = $users->get($order->email);
             if (!$user) continue;
 
-            // ❌ sudah hadir → skip
-            if (in_array($user->id, $presentUsers)) {
+            // sudah hadir di session yang sama / session_order yang sama
+            if (
+                in_array($user->id, $presentUsers) ||
+                $this->hasPresentAttendanceForSessionOrder($schedule, $user->id, $session->session_order)
+            ) {
                 continue;
             }
 
-            // ❌ tidak lolos rule chain → skip
             if (!$this->canJoinSchedule($schedule, $user->id)) {
                 continue;
             }
 
-            // ✔ kirim email
-            Mail::raw(
-                "Halo {$order->nama},\n\n" .
-                    "Sesi baru telah dimulai 🎓\n\n" .
-                    "📚 Kelas: {$schedule->title}\n" .
-                    "⏰ Waktu: {$schedule->start_time} - {$schedule->end_time}\n\n" .
-                    "⚠️ Pastikan kamu sudah menyelesaikan sesi sebelumnya agar bisa melanjutkan pembelajaran.\n\n" .
-                    "Silakan segera melakukan absensi di sesi ini agar progress kamu tercatat.\n\n" .
-                    "🔗 Link : {$schedule->link}\n\n" .
-                    "Tetap konsisten ya, biar tidak tertinggal materi 🚀",
-                function ($message) use ($order, $schedule) {
-                    $message->to($order->email)
-                        ->subject("🔔 Sesi Baru Dimulai: {$schedule->title}");
-                }
-            );
+            // 1. Buat Konten File ICS (Google Calendar)
+
+
+            $emailBody = "Halo {$order->nama},\n\n" .
+                "Sesi baru telah dimulai 🎓\n\n" .
+                "📚 Kelas: {$schedule->title}\n" .
+                "⏰ Waktu: {$schedule->start_time} - {$schedule->end_time}\n\n" .
+                "🔗 Link : {$schedule->link}\n\n" .
+                "Tetap konsisten ya, biar tidak tertinggal materi 🚀";
+
+            // Gunakan struktur ini untuk menghindari TypeError
+            Mail::send([], [], function ($message) use ($order, $schedule, $icsContent, $emailBody) {
+                $message->to($order->email)
+                    ->subject("🔔 Sesi Baru Dimulai: {$schedule->title}")
+                    // Gunakan html() atau plain() untuk mengisi body
+                    ->html(nl2br($emailBody))
+                    ->text($emailBody)
+                    ->attachData($icsContent, "invite.ics", [
+                        'mime' => 'text/calendar; charset=UTF-8; method=REQUEST',
+                    ]);
+            });
         }
     }
 
-    // =========================
-    // RULE CHECK (HYBRID - SESI 1 FRIENDLY)
-    // =========================
+    private function hasPresentAttendanceForSessionOrder(Schedule $schedule, int $userId, int $sessionOrder): bool
+    {
+        return DB::table('attendances as a')
+            ->join('class_sessions as s', 'a.class_session_id', '=', 's.id')
+            ->join('schedules as sc', 's.schedule_id', '=', 'sc.id')
+            ->where('sc.kelas_id', $schedule->kelas_id)
+            ->where('s.session_order', $sessionOrder)
+            ->where('a.user_id', $userId)
+            ->where('a.is_present', 1)
+            ->exists();
+    }
+
     // private function canJoinSchedule(Schedule $schedule, int $userId): bool
     // {
-    //     // SESSION 1 selalu boleh
     //     $currentSession = $this->getCurrentSession($schedule);
     //     if (!$currentSession) return true;
 
-    //     if ((int)$currentSession->session_order === 1) {
+    //     // Kalau user sudah pernah hadir di session_order yang sama, langsung boleh lanjut
+    //     if ($this->hasPresentAttendanceForSessionOrder($schedule, $userId, $currentSession->session_order)) {
     //         return true;
     //     }
 
-    //     // cari schedule sebelumnya
+    //     // =========================
+    //     // 🔥 CEK SESSION 1 SUDAH HADIR
+    //     // =========================
+    //     $session1 = $schedule->sessions()
+    //         ->orderBy('session_order', 'asc')
+    //         ->first();
+
+    //     if ($session1) {
+    //         $alreadyPresentSession1 = DB::table('attendances')
+    //             ->where('class_session_id', $session1->id)
+    //             ->where('user_id', $userId)
+    //             ->where('is_present', 1)
+    //             ->exists();
+
+    //         if ($alreadyPresentSession1) {
+    //             return true;
+    //         }
+    //     }
+
+    //     // =========================
+    //     // RULE LAMA (CHAIN VALIDATION)
+    //     // =========================
     //     $previousSchedule = $this->getPreviousSchedule($schedule);
 
     //     if (!$previousSchedule) return true;
 
-    //     // ambil session terakhir dari schedule sebelumnya
     //     $lastSession = $previousSchedule->sessions()
     //         ->orderBy('session_order', 'desc')
     //         ->first();
 
     //     if (!$lastSession) return true;
 
-    //     // WAJIB SUDAH PRESENT DI SESSION SEBELUMNYA
+    //     return DB::table('attendances')
+    //         ->where('class_session_id', $lastSession->id)
+    //         ->where('user_id', $userId)
+    //         ->where('is_present', 1)
+    //         ->exists();
+    // }
+
+    private function hasAnyAttendanceInClass(Schedule $schedule, int $userId): bool
+    {
+        return DB::table('attendances as a')
+            ->join('class_sessions as s', 'a.class_session_id', '=', 's.id')
+            ->join('schedules as sc', 's.schedule_id', '=', 'sc.id')
+            ->where('sc.kelas_id', $schedule->kelas_id)
+            ->where('a.user_id', $userId)
+            ->exists();
+    }
+
+    private function hasPresentAttendanceBeforeSessionOrder(Schedule $schedule, int $userId, int $sessionOrder): bool
+    {
+        return DB::table('attendances as a')
+            ->join('class_sessions as s', 'a.class_session_id', '=', 's.id')
+            ->join('schedules as sc', 's.schedule_id', '=', 'sc.id')
+            ->where('sc.kelas_id', $schedule->kelas_id)
+            ->where('a.user_id', $userId)
+            ->where('a.is_present', 1)
+            ->where('s.session_order', '<', $sessionOrder)
+            ->exists();
+    }
+
+
+    // private function canJoinSchedule(Schedule $schedule, int $userId): bool
+    // {
+    //     $currentSession = $this->getCurrentSession($schedule);
+    //     if (!$currentSession) return true;
+
+    //     // Kalau user belum punya attendance sama sekali di kelas ini,
+    //     // langsung boleh join
+    //     if (!$this->hasAnyAttendanceInClass($schedule, $userId)) {
+    //         return true;
+    //     }
+
+    //     // Kalau user sudah pernah hadir di session_order yang sama, langsung boleh lanjut
+    //     if ($this->hasPresentAttendanceForSessionOrder($schedule, $userId, $currentSession->session_order)) {
+    //         return true;
+    //     }
+
+    //     // CEK SESSION 1 SUDAH HADIR
+    //     $session1 = $schedule->sessions()
+    //         ->orderBy('session_order', 'asc')
+    //         ->first();
+
+    //     if ($session1) {
+    //         $alreadyPresentSession1 = DB::table('attendances')
+    //             ->where('class_session_id', $session1->id)
+    //             ->where('user_id', $userId)
+    //             ->where('is_present', 1)
+    //             ->exists();
+
+    //         if ($alreadyPresentSession1) {
+    //             return true;
+    //         }
+    //     }
+
+    //     // RULE LAMA (CHAIN VALIDATION)
+    //     $previousSchedule = $this->getPreviousSchedule($schedule);
+    //     if (!$previousSchedule) return true;
+
+    //     $lastSession = $previousSchedule->sessions()
+    //         ->orderBy('session_order', 'desc')
+    //         ->first();
+
+    //     if (!$lastSession) return true;
+
     //     return DB::table('attendances')
     //         ->where('class_session_id', $lastSession->id)
     //         ->where('user_id', $userId)
@@ -247,9 +376,23 @@ class ScheduleController extends Controller
         $currentSession = $this->getCurrentSession($schedule);
         if (!$currentSession) return true;
 
-        // =========================
-        // 🔥 CEK SESSION 1 SUDAH HADIR
-        // =========================
+        // Kalau user belum punya attendance sama sekali di kelas ini, langsung boleh join
+        if (!$this->hasAnyAttendanceInClass($schedule, $userId)) {
+            return true;
+        }
+
+        // Kalau user sudah pernah hadir di session_order yang sama, langsung boleh lanjut
+        if ($this->hasPresentAttendanceForSessionOrder($schedule, $userId, $currentSession->session_order)) {
+            return true;
+        }
+
+        // INI TAMBAHAN:
+        // Kalau user sudah hadir di session_order yang lebih kecil, dia boleh join session berikutnya
+        if ($this->hasPresentAttendanceBeforeSessionOrder($schedule, $userId, $currentSession->session_order)) {
+            return true;
+        }
+
+        // CEK SESSION 1 SUDAH HADIR
         $session1 = $schedule->sessions()
             ->orderBy('session_order', 'asc')
             ->first();
@@ -261,17 +404,13 @@ class ScheduleController extends Controller
                 ->where('is_present', 1)
                 ->exists();
 
-            // kalau sudah hadir session 1 → bebas lanjut semua session
             if ($alreadyPresentSession1) {
                 return true;
             }
         }
 
-        // =========================
         // RULE LAMA (CHAIN VALIDATION)
-        // =========================
         $previousSchedule = $this->getPreviousSchedule($schedule);
-
         if (!$previousSchedule) return true;
 
         $lastSession = $previousSchedule->sessions()
