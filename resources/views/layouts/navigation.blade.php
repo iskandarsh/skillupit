@@ -76,19 +76,30 @@
                             <!-- REFERRAL -->
                             <a href="{{ route('referral.index') }}"
                                 class="block px-4 py-2 text-sm hover:bg-gray-100 
-{{ request()->routeIs('referral.*') ? 'text-indigo-600 font-semibold' : 'text-gray-700' }}">
+                                {{ request()->routeIs('referral.*') ? 'text-indigo-600 font-semibold' : 'text-gray-700' }}">
                                 🎯 Referal
                             </a>
 
                             <!-- SCHEDULE (NEW) -->
                             <a href="{{ route('schedule.index') }}"
                                 class="block px-4 py-2 text-sm hover:bg-gray-100 
-{{ request()->routeIs('schedule.*') ? 'text-indigo-600 font-semibold' : 'text-gray-700' }}">
+                                {{ request()->routeIs('schedule.*') ? 'text-indigo-600 font-semibold' : 'text-gray-700' }}">
                                 📅 Schedule
                             </a>
 
                         </div>
+
+
                     </div>
+
+                    <!-- LAPORAN -->
+                    <a href="{{ route('laporan.index') }}"
+                        class="px-4 py-2 rounded-xl text-sm font-medium transition
+                        {{ request()->routeIs('laporan.*') 
+                            ? 'bg-indigo-100 text-indigo-600 shadow-sm' 
+                            : 'text-gray-600 hover:bg-gray-100' }}">
+                        📊 Laporan
+                    </a>
                     @endif
                     @endauth
 
@@ -101,7 +112,7 @@
                 <!-- CTA -->
                 <a href="{{ url('/') }}"
                     class="px-4 py-2 rounded-xl text-sm font-semibold 
-   bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow hover:opacity-90 transition">
+                    bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow hover:opacity-90 transition">
                     🚀 Explore
                 </a>
 
@@ -213,6 +224,14 @@
             Schedule
         </a>
 
+        <!-- LAPORAN -->
+        <a href="{{ route('laporan.index') }}"
+            class="block px-4 py-2 rounded-xl text-sm font-medium
+    {{ request()->routeIs('laporan.*') 
+        ? 'bg-indigo-100 text-indigo-600' 
+        : 'text-gray-600 hover:bg-gray-100' }}">
+            Laporan
+        </a>
         @endif
         @endauth
 

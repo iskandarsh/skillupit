@@ -111,70 +111,77 @@
                 </p>
             </div>
 
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3 items-stretch">
                 @forelse($kelas as $item)
-                <div class="group bg-white rounded-3xl p-4 border border-slate-200 shadow-sm hover:shadow-xl hover:border-blue-200 hover:-translate-y-1 transition-all duration-300 flex flex-col relative">
+                <div class="group h-full overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-blue-200 hover:shadow-xl flex flex-col">
 
-                    <div class="relative overflow-hidden rounded-2xl aspect-video mb-5 bg-slate-100">
+                    <div class="relative aspect-[16/10] overflow-hidden bg-slate-100">
                         @if($item->thumbnail)
-                        <img src="{{ asset($item->thumbnail) }}" alt="{{ $item->nama_kelas }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        <img
+                            src="{{ asset($item->thumbnail) }}"
+                            alt="{{ $item->nama_kelas }}"
+                            class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105">
                         @else
-                        <div class="w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
-                            <svg class="w-12 h-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200">
+                            <svg class="h-12 w-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                             </svg>
                         </div>
                         @endif
 
-                        <div class="absolute top-3 left-3">
-                            <span class="px-3 py-1.5 bg-white/90 backdrop-blur-md text-slate-900 text-xs font-bold uppercase tracking-wide rounded-full shadow-sm flex items-center gap-1">
+                        <div class="absolute left-3 top-3">
+                            <span class="flex items-center gap-1 rounded-full bg-white/90 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-slate-900 shadow-sm backdrop-blur-md">
                                 <span class="text-orange-500">★</span> Populer
                             </span>
                         </div>
                     </div>
 
-                    <div class="px-2 flex-1 flex flex-col">
-                        <div class="flex items-center gap-2 mb-3">
-                            <div class="flex items-center gap-1.5 px-2.5 py-1 bg-blue-50/50 text-blue-600 rounded-lg text-xs font-semibold border border-blue-100">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="flex flex-1 flex-col p-5">
+                        <div class="mb-3 flex items-center gap-2">
+                            <div class="flex items-center gap-1.5 rounded-lg border border-blue-100 bg-blue-50/60 px-2.5 py-1 text-xs font-semibold text-blue-600">
+                                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
                                 <span>{{ $item->periode ? \Carbon\Carbon::parse($item->periode)->translatedFormat('d M Y') : 'Segera Hadir' }}</span>
                             </div>
                         </div>
 
-                        <h3 class="text-xl font-bold text-slate-900 mb-2 leading-snug group-hover:text-blue-600 transition-colors line-clamp-2">
+                        <h3 class="mb-2 line-clamp-2 text-xl font-bold leading-snug text-slate-900 transition-colors group-hover:text-blue-600">
                             {{ $item->nama_kelas }}
                         </h3>
-                        <p class="text-slate-500 text-sm leading-relaxed mb-6 line-clamp-2">
+
+                        <p class="mb-5 line-clamp-3 text-sm leading-relaxed text-slate-500">
                             {{ $item->deskripsi }}
                         </p>
 
-                        @if($item->mentors && $item->mentors->count())
-                        <div class="flex items-center gap-3 mb-6 mt-auto">
-                            <div class="flex -space-x-2">
-                                @foreach($item->mentors->take(3) as $mentor)
-                                @if($mentor->photo)
-                                <img src="{{ asset('storage/' . $mentor->photo) }}" alt="{{ $mentor->name }}" class="w-8 h-8 rounded-full border-2 border-white object-cover">
-                                @else
-                                <div class="w-8 h-8 rounded-full border-2 border-white bg-indigo-600 text-white flex items-center justify-center text-xs font-bold">
-                                    {{ strtoupper(substr($mentor->name, 0, 1)) }}
+                        <div class="mt-auto">
+                            @if($item->mentors && $item->mentors->count())
+                            <div class="mb-5 flex items-center gap-3">
+                                <div class="flex -space-x-2">
+                                    @foreach($item->mentors->take(3) as $mentor)
+                                    @if($mentor->photo)
+                                    <img
+                                        src="{{ asset('storage/' . $mentor->photo) }}"
+                                        alt="{{ $mentor->name }}"
+                                        class="h-8 w-8 rounded-full border-2 border-white object-cover">
+                                    @else
+                                    <div class="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-indigo-600 text-xs font-bold text-white">
+                                        {{ strtoupper(substr($mentor->name, 0, 1)) }}
+                                    </div>
+                                    @endif
+                                    @endforeach
                                 </div>
-                                @endif
-                                @endforeach
+                                <span class="text-xs font-medium text-slate-500">
+                                    {{ $item->mentors->count() }} Mentor Industri
+                                </span>
                             </div>
-                            <span class="text-xs text-slate-500 font-medium">
-                                {{ $item->mentors->count() }} Mentor Industri
-                            </span>
-                        </div>
-                        @endif
+                            @endif
 
-                        <div class="pt-5 border-t border-slate-100 flex items-end justify-between mb-4">
-                            <div>
-                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Investasi</p>
+                            <div class="mb-5 border-t border-slate-100 pt-4">
+                                <p class="mb-1 text-xs font-semibold uppercase tracking-wider text-slate-400">Investasi</p>
                                 <div class="flex flex-col">
                                     @if($item->harga_coret && $item->harga_coret > $item->harga)
-                                    <span class="text-xs text-slate-400 line-through font-medium mb-0.5">
+                                    <span class="mb-0.5 text-xs font-medium text-slate-400 line-through">
                                         Rp {{ number_format($item->harga_coret, 0, ',', '.') }}
                                     </span>
                                     @endif
@@ -183,25 +190,28 @@
                                     </span>
                                 </div>
                             </div>
-                        </div>
 
-                        <button type="button" onclick='openCheckoutModal(@json($item->id), @json($item->nama_kelas), @json($item->harga))' class="w-full flex items-center justify-center gap-2 py-3 px-4 bg-slate-900 hover:bg-blue-600 text-white rounded-xl font-semibold transition-all duration-300 shadow-md shadow-slate-200 hover:shadow-blue-200">
-                            <span>Daftar Sekarang</span>
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                            </svg>
-                        </button>
+                            <button
+                                type="button"
+                                onclick='openCheckoutModal(@json($item->id), @json($item->nama_kelas), @json($item->harga))'
+                                class="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-3 font-semibold text-white shadow-md shadow-slate-200 transition-all duration-300 hover:bg-blue-600 hover:shadow-blue-200">
+                                <span>Daftar Sekarang</span>
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 @empty
-                <div class="col-span-full flex flex-col items-center justify-center py-24 text-center bg-white rounded-3xl border border-slate-100 shadow-sm">
-                    <div class="w-20 h-20 bg-slate-50 rounded-2xl flex items-center justify-center mb-4">
-                        <svg class="w-10 h-10 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="col-span-full flex flex-col items-center justify-center rounded-3xl border border-slate-100 bg-white py-24 text-center shadow-sm">
+                    <div class="mb-4 flex h-20 w-20 items-center justify-center rounded-2xl bg-slate-50">
+                        <svg class="h-10 w-10 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                         </svg>
                     </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-2">Belum Ada Kelas</h3>
-                    <p class="text-slate-500 max-w-sm">Nantikan update kelas menarik dengan kurikulum terbaik dari kami segera.</p>
+                    <h3 class="mb-2 text-xl font-bold text-slate-900">Belum Ada Kelas</h3>
+                    <p class="max-w-sm text-slate-500">Nantikan update kelas menarik dengan kurikulum terbaik dari kami segera.</p>
                 </div>
                 @endforelse
             </div>

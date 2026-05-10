@@ -5,6 +5,7 @@ use App\Http\Controllers\ClassSessionController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FamilyTreeController;
 use App\Http\Controllers\KelasController;
+use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\MentorController;
 use App\Http\Controllers\ModulController;
 use App\Http\Controllers\OrderController;
@@ -32,9 +33,13 @@ Route::get('/', function () {
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
-Route::get('/payment/success', [DashboardController::class, 'index'])
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
+// Route::get('/payment/success', [DashboardController::class, 'index'])
+//     ->middleware(['auth', 'verified'])
+//     ->name('dashboard');
+Route::get('/payment/success', function () {
+    return view('payment.success');
+});
+
 Route::get('/payment/failed',  function () {
     $kelas = Kelas::where('is_active', 1)->latest()->paginate(3); // 🔥 pagination 3 data
     return view('welcome', compact('kelas'));
@@ -93,6 +98,12 @@ Route::middleware(['auth', 'level:1'])->group(function () {
     Route::resource('class-session', ClassSessionController::class)->parameters([
         'class-session' => 'id'
     ]);
+
+    Route::prefix('laporan')->name('laporan.')->group(function () {
+
+        Route::get('/', [LaporanController::class, 'index'])
+            ->name('index');
+    });
     // Route::get('/referals/data', [ReferalController::class, 'data']);
 });
 Route::post('/checkout', [OrderController::class, 'checkout']);
