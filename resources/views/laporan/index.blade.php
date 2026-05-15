@@ -53,10 +53,14 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
                         </div>
-                        <span class="text-xs font-bold text-green-500 bg-green-50 px-2 py-1 rounded-full">85% Rate</span>
+                        <span class="text-xs font-bold text-green-500 bg-green-50 px-2 py-1 rounded-full">
+                            {{ $rateLulus }}% Rate
+                        </span>
                     </div>
                     <p class="text-sm font-medium text-gray-500">Total Lulus</p>
-                    <p class="text-2xl font-bold text-gray-900">156</p>
+                    <p class="text-2xl font-bold text-gray-900">
+                        {{ $totalLulus }}
+                    </p>
                 </div>
 
                 <!-- Card 4 -->
@@ -70,8 +74,63 @@
                         <span class="text-xs font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded-full">Active</span>
                     </div>
                     <p class="text-sm font-medium text-gray-500">Referral</p>
-                    <p class="text-2xl font-bold text-gray-900">89</p>
+                    <p class="text-2xl font-bold text-gray-900">
+                        {{ $totalReferral }}
+                    </p>
                 </div>
+            </div>
+
+            <!-- Financial Stats -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+
+                <!-- Total Revenue -->
+                <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+                    <p class="text-sm font-medium text-gray-500 mb-2">
+                        Total Revenue
+                    </p>
+
+                    <h3 class="text-3xl font-bold text-emerald-600">
+                        Rp {{ number_format($totalRevenue, 0, ',', '.') }}
+                    </h3>
+                </div>
+
+                <!-- Discount -->
+                <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+                    <p class="text-sm font-medium text-gray-500 mb-2">
+                        Total Discount
+                    </p>
+
+                    <h3 class="text-3xl font-bold text-rose-500">
+                        Rp {{ number_format($totalDiscount, 0, ',', '.') }}
+                    </h3>
+                </div>
+
+                <!-- Net Revenue -->
+                <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+                    <p class="text-sm font-medium text-gray-500 mb-2">
+                        Net Revenue
+                    </p>
+
+                    <h3 class="text-3xl font-bold text-indigo-600">
+                        Rp {{ number_format($netRevenue, 0, ',', '.') }}
+                    </h3>
+                </div>
+
+                <!-- Paid Order -->
+                <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+                    <p class="text-sm font-medium text-gray-500 mb-2">
+                        Paid Orders
+                    </p>
+
+                    <h3 class="text-3xl font-bold text-gray-900">
+                        {{ $totalPaid }}
+                    </h3>
+
+                    <p class="text-sm text-amber-500 mt-2">
+                        Pending: {{ $totalPending }}
+                    </p>
+                </div>
+
             </div>
 
             <!-- Visualization Section -->
@@ -109,81 +168,181 @@
                     </div>
                 </div>
 
+                <!-- Revenue Chart -->
+                <div class="mt-8 bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
+                    <div class="flex items-center justify-between mb-8">
+                        <h3 class="text-lg font-bold text-gray-800">
+                            Revenue per Kelas
+                        </h3>
+                    </div>
+
+                    <div class="h-[350px]">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
 
     <!-- Chart.js Setup -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Global Style Overrides
         Chart.defaults.font.family = "'Plus Jakarta Sans', 'Inter', sans-serif";
         Chart.defaults.color = '#64748b';
 
-        // 1. Bar Chart: Kelas
-        const ctxKelas = document.getElementById('kelasChart').getContext('2d');
-        new Chart(ctxKelas, {
-            type: 'bar',
-            data: {
-                labels: ['Laravel', 'Flutter', 'UI/UX', 'NodeJS', 'Python'],
-                datasets: [{
-                    label: 'Peminat',
-                    data: [88, 62, 45, 76, 32],
-                    backgroundColor: '#6366f1',
-                    borderRadius: 12,
-                    barThickness: 40,
-                }]
-            },
-            options: {
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
-                scales: {
-                    y: {
-                        border: {
-                            display: false
-                        },
-                        grid: {
-                            color: '#f1f5f9'
-                        }
-                    },
-                    x: {
-                        border: {
-                            display: false
-                        },
-                        grid: {
-                            display: false
-                        }
-                    }
-                }
-            }
-        });
+        let kelasChart;
+        let statusChart;
 
-        // 2. Doughnut Chart: Status
-        const ctxStatus = document.getElementById('statusChart').getContext('2d');
-        new Chart(ctxStatus, {
-            type: 'doughnut',
-            data: {
-                labels: ['Lulus', 'On Progress', 'Lainnya'],
-                datasets: [{
-                    data: [156, 84, 25],
-                    backgroundColor: ['#6366f1', '#fbbf24', '#f1f5f9'],
-                    hoverOffset: 10,
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                maintainAspectRatio: false,
-                cutout: '82%',
-                plugins: {
-                    legend: {
-                        display: false
-                    }
+        $(document).ready(function() {
+
+            $.ajax({
+                url: "{{ route('laporan.chart') }}",
+                type: "GET",
+                success: function(response) {
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | BAR CHART
+                    |--------------------------------------------------------------------------
+                    */
+
+                    const ctxKelas = document
+                        .getElementById('kelasChart')
+                        .getContext('2d');
+
+                    kelasChart = new Chart(ctxKelas, {
+                        type: 'bar',
+                        data: {
+                            labels: response.kelasLabels,
+                            datasets: [{
+                                label: 'Peminat',
+                                data: response.kelasTotals,
+                                backgroundColor: '#6366f1',
+                                borderRadius: 12,
+                                barThickness: 40,
+                            }]
+                        },
+                        options: {
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    border: {
+                                        display: false
+                                    },
+                                    grid: {
+                                        color: '#f1f5f9'
+                                    }
+                                },
+                                x: {
+                                    border: {
+                                        display: false
+                                    },
+                                    grid: {
+                                        display: false
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | DOUGHNUT CHART
+                    |--------------------------------------------------------------------------
+                    */
+
+                    const ctxStatus = document
+                        .getElementById('statusChart')
+                        .getContext('2d');
+
+                    statusChart = new Chart(ctxStatus, {
+                        type: 'doughnut',
+                        data: {
+                            labels: response.statusLabels,
+                            datasets: [{
+                                data: response.statusTotals,
+                                backgroundColor: [
+                                    '#6366f1',
+                                    '#fbbf24',
+                                    '#f1f5f9'
+                                ],
+                                hoverOffset: 10,
+                                borderWidth: 0
+                            }]
+                        },
+                        options: {
+                            maintainAspectRatio: false,
+                            cutout: '82%',
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            }
+                        }
+                    });
+
+                    /*
+|--------------------------------------------------------------------------
+| REVENUE CHART
+|--------------------------------------------------------------------------
+*/
+
+                    const ctxRevenue = document
+                        .getElementById('revenueChart')
+                        .getContext('2d');
+
+                    new Chart(ctxRevenue, {
+                        type: 'line',
+                        data: {
+                            labels: response.revenueLabels,
+                            datasets: [{
+                                label: 'Revenue',
+                                data: response.revenueTotals,
+                                borderColor: '#10b981',
+                                backgroundColor: 'rgba(16,185,129,0.1)',
+                                tension: 0.4,
+                                fill: true,
+                                pointRadius: 5,
+                                pointHoverRadius: 7
+                            }]
+                        },
+                        options: {
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    grid: {
+                                        color: '#f1f5f9'
+                                    }
+                                },
+                                x: {
+                                    grid: {
+                                        display: false
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+                },
+                error: function(xhr) {
+                    console.log(xhr.responseText);
                 }
-            }
+            });
+
         });
     </script>
 </x-app-layout>

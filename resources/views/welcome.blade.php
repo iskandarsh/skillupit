@@ -9,7 +9,8 @@
 
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
@@ -25,6 +26,31 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        .nav-link {
+            position: relative;
+            transition: all .3s ease;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -6px;
+            width: 0%;
+            height: 2px;
+            background: #2563eb;
+            border-radius: 999px;
+            transition: width .3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
     </style>
 </head>
 
@@ -34,9 +60,9 @@
         <h1 class="text-2xl font-black tracking-tighter text-blue-600">SKILLUP<span class="text-slate-400">.IT</span></h1>
 
         <div class="hidden md:flex space-x-8 font-medium text-sm">
-            <a href="#kelas" class="hover:text-blue-600 transition">Materi</a>
-            <a href="#harga" class="hover:text-blue-600 transition">Pricing</a>
-            <a href="#testimoni" class="hover:text-blue-600 transition">Testimoni</a>
+            <a href="#kelas" class="nav-link hover:text-blue-600 transition">Materi</a>
+            <a href="#harga" class="nav-link hover:text-blue-600 transition">Pricing</a>
+            <a href="#testimoni" class="nav-link hover:text-blue-600 transition">Testimoni</a>
         </div>
 
         <div class="space-x-3">
@@ -225,64 +251,133 @@
             @endif
         </div>
     </section>
+    <section class="py-28 bg-gradient-to-b from-white via-slate-50 to-white overflow-hidden border-t border-slate-100 relative">
 
-    <section class="py-24 bg-white overflow-hidden border-t border-slate-100">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="text-center max-w-2xl mx-auto mb-16" data-aos="fade-up">
-                <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight text-slate-900 mb-4">
-                    Mentor <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Pilihan</span>
+        <!-- Blur Background -->
+        <div class="absolute top-0 left-0 w-72 h-72 bg-blue-200/20 rounded-full blur-[120px]"></div>
+        <div class="absolute bottom-0 right-0 w-72 h-72 bg-indigo-200/20 rounded-full blur-[120px]"></div>
+
+        <div class="max-w-7xl mx-auto px-6 relative z-10">
+
+            <!-- Heading -->
+            <div class="text-center max-w-3xl mx-auto mb-20" data-aos="fade-up">
+
+                <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-xs font-bold tracking-widest uppercase mb-5">
+                    ✨ Mentor Professional
+                </span>
+
+                <h2 class="text-4xl md:text-6xl font-black tracking-tight text-slate-900 leading-tight mb-6">
+                    Belajar dari
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+                        Mentor Pilihan
+                    </span>
                 </h2>
+
                 <p class="text-slate-500 text-lg leading-relaxed">
-                    Belajar langsung dari praktisi yang aktif di industri dan siap memandu perjalanan karirmu.
+                    Mentor aktif industri dengan pengalaman real project,
+                    siap bantu kamu berkembang lebih cepat 🚀
                 </p>
             </div>
 
-            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Mentor Grid -->
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-7">
+
                 @forelse($mentors as $mentor)
-                <div class="group bg-slate-50 rounded-3xl p-6 border border-slate-100 hover:bg-white hover:border-blue-100 hover:shadow-xl transition-all duration-300 flex flex-col items-center text-center relative overflow-hidden">
 
-                    <div class="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-blue-50 to-transparent"></div>
+                <div
+                    data-aos="fade-up"
+                    class="group relative bg-white/80 backdrop-blur-xl rounded-[2rem] p-6 border border-slate-100 hover:border-blue-200 shadow-sm hover:shadow-2xl hover:shadow-blue-100/40 transition-all duration-500 hover:-translate-y-3 overflow-hidden flex flex-col">
 
-                    <div class="relative w-24 h-24 rounded-full p-1 bg-white shadow-sm mb-5 z-10">
-                        @if($mentor->photo)
-                        <img src="{{ asset('storage/' . $mentor->photo) }}" alt="{{ $mentor->name }}" class="w-full h-full rounded-full object-cover">
-                        @else
-                        <div class="w-full h-full rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center text-2xl font-bold">
-                            {{ strtoupper(substr($mentor->name, 0, 1)) }}
+                    <!-- Glow Hover -->
+                    <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-500 bg-gradient-to-br from-blue-50/40 via-transparent to-indigo-50/40"></div>
+
+                    <!-- Top Accent -->
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
+
+                    <!-- Avatar -->
+                    <div class="relative z-10 flex justify-center mb-6">
+
+                        <div class="relative w-28 h-28 rounded-full p-[3px] bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg overflow-hidden">
+
+                            @if($mentor->photo)
+
+                            <img
+                                src="{{ asset('storage/' . $mentor->photo) }}"
+                                alt="{{ $mentor->name }}"
+                                class="w-full h-full rounded-full object-cover object-top bg-white transition duration-500 group-hover:scale-110">
+
+                            @else
+
+                            <div class="w-full h-full rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center text-3xl font-black">
+                                {{ strtoupper(substr($mentor->name, 0, 1)) }}
+                            </div>
+
+                            @endif
+
+                            <!-- Online Badge -->
+                            <div class="absolute bottom-2 right-2 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full animate-pulse"></div>
                         </div>
-                        @endif
                     </div>
 
-                    <div class="z-10 w-full">
-                        <h3 class="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors truncate mb-1">
+                    <!-- Content -->
+                    <div class="relative z-10 text-center flex flex-col flex-1">
+
+                        <h3 class="text-xl font-black text-slate-900 group-hover:text-blue-600 transition-colors mb-1 line-clamp-1">
                             {{ $mentor->name }}
                         </h3>
-                        <p class="text-sm font-medium text-blue-600 mb-4 truncate">
+
+                        <p class="text-sm font-semibold text-blue-600 mb-4 line-clamp-1">
                             {{ $mentor->job_title ?? 'Expert Mentor' }}
                         </p>
 
-                        <p class="text-sm text-slate-500 leading-relaxed mb-6 line-clamp-3">
+                        <p class="text-sm text-slate-500 leading-relaxed line-clamp-4 mb-6">
                             {{ $mentor->bio ?? 'Praktisi industri yang siap membagikan pengalaman dan membimbing kamu meraih karir impian.' }}
                         </p>
 
-                        <div class="pt-5 border-t border-slate-200/60 flex flex-col items-center gap-2">
-                            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Mengajar</span>
-                            <div class="flex items-center gap-2">
-                                <span class="px-2.5 py-1 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-md">
-                                    {{ $mentor->kelas->count() }} Kelas
-                                </span>
+                        <!-- Stats -->
+                        <div class="mt-auto pt-5 border-t border-slate-100 flex items-center justify-center gap-3">
+
+                            <div class="px-3 py-1.5 rounded-xl bg-blue-50 text-blue-700 text-xs font-bold">
+                                🎓 {{ $mentor->kelas->count() }} Kelas
                             </div>
+
+                            <div class="px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-600 text-xs font-bold">
+                                ⭐ Mentor Active
+                            </div>
+
                         </div>
                     </div>
                 </div>
+
                 @empty
-                <div class="col-span-full py-20 text-center text-slate-500 bg-slate-50 rounded-3xl border border-slate-100">
-                    <svg class="w-12 h-12 mx-auto text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                    </svg>
-                    <p class="text-lg font-medium">Belum ada mentor yang ditampilkan.</p>
+
+                <div class="col-span-full">
+
+                    <div class="bg-white rounded-[2rem] border border-slate-100 py-24 px-6 text-center shadow-sm">
+
+                        <div class="w-24 h-24 rounded-3xl bg-slate-50 flex items-center justify-center mx-auto mb-6">
+
+                            <svg class="w-12 h-12 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                            </svg>
+
+                        </div>
+
+                        <h3 class="text-2xl font-black text-slate-900 mb-3">
+                            Mentor Belum Tersedia
+                        </h3>
+
+                        <p class="text-slate-500 max-w-md mx-auto leading-relaxed">
+                            Mentor terbaik sedang dipersiapkan untuk membantu perjalanan belajarmu 🚀
+                        </p>
+
+                    </div>
+
                 </div>
+
                 @endforelse
+
             </div>
         </div>
     </section>
@@ -463,8 +558,17 @@
             <div>
                 <h4 class="font-bold mb-6">Social Media</h4>
                 <div class="flex gap-4">
-                    <div class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center hover:bg-blue-600 hover:text-white transition cursor-pointer">IG</div>
-                    <div class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center hover:bg-blue-600 hover:text-white transition cursor-pointer">YT</div>
+                    <a href="https://www.instagram.com/skill.up.it.academy?igsh=bndyY2V3ZzRlbjBo"
+                        target="_blank"
+                        class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center hover:bg-pink-600 hover:text-white transition cursor-pointer">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+
+                    <a href="https://www.tiktok.com/@skill.up.it"
+                        target="_blank"
+                        class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center hover:bg-black hover:text-white transition cursor-pointer">
+                        <i class="fab fa-tiktok"></i>
+                    </a>
                 </div>
             </div>
         </div>
@@ -718,6 +822,25 @@
                     $('#btnCheckout').prop('disabled', false).text('Lanjut ke Pembayaran');
                 }
             });
+        });
+    </script>
+    <script>
+        window.addEventListener('scroll', function() {
+            const nav = document.querySelector('nav');
+
+            if (window.scrollY > 20) {
+                nav.classList.add(
+                    'bg-white/90',
+                    'backdrop-blur-xl',
+                    'shadow-lg'
+                );
+            } else {
+                nav.classList.remove(
+                    'bg-white/90',
+                    'backdrop-blur-xl',
+                    'shadow-lg'
+                );
+            }
         });
     </script>
 </body>

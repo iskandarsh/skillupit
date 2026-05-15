@@ -104,6 +104,8 @@ Route::middleware(['auth', 'level:1'])->group(function () {
         Route::get('/', [LaporanController::class, 'index'])
             ->name('index');
     });
+
+    Route::get('/laporan/chart', [LaporanController::class, 'chart'])->name('laporan.chart');
     // Route::get('/referals/data', [ReferalController::class, 'data']);
 });
 Route::post('/checkout', [OrderController::class, 'checkout']);
