@@ -126,6 +126,49 @@
         </div>
     </div>
 
+    <!-- MODAL UPLOAD VIDEO -->
+
+    <div id="modalUploadVideo"
+        class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60">
+
+        <div class="bg-white w-full max-w-md rounded-3xl p-6">
+
+            <div class="flex items-center justify-between mb-5">
+                <h2 class="text-xl font-bold">
+                    Upload Video Record
+                </h2>
+
+                <button onclick="closeUploadVideo()"
+                    class="text-red-500 text-xl font-bold">
+                    ✕
+                </button>
+            </div>
+
+            <form id="formUploadVideo">
+
+                <input type="hidden" id="schedule_id">
+
+                <div class="mb-5">
+                    <label class="block text-sm font-semibold mb-2">
+                        Upload Video
+                    </label>
+
+                    <input type="file"
+                        id="record_video"
+                        name="record_video"
+                        accept="video/*"
+                        class="w-full border rounded-xl px-4 py-3">
+                </div>
+
+                <button type="submit"
+                    class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-2xl">
+                    Upload Sekarang
+                </button>
+
+            </form>
+        </div>
+    </div>
+
     <script>
         const token = $('meta[name="csrf-token"]').attr('content');
 
@@ -208,6 +251,7 @@
                     dataField: "title",
                     caption: "Judul"
                 },
+
                 {
                     dataField: "date",
                     caption: "Tanggal"
@@ -218,6 +262,7 @@
                     calculateCellValue: d => {
                         const start = d.start_time ?? "-";
                         const end = d.end_time ?? "-";
+
                         return `${start} - ${end}`;
                     }
                 },
@@ -231,6 +276,7 @@
                     caption: "Session",
                     calculateCellValue: d => {
                         if (!d.sessions || !d.sessions.length) return "-";
+
                         return "Session " + d.sessions[0].session_order;
                     }
                 },
@@ -239,22 +285,57 @@
                     caption: "Last",
                     calculateCellValue: d => {
                         if (!d.sessions || !d.sessions.length) return "-";
+
                         return d.sessions[0].is_end ? "YES" : "NO";
                     }
                 },
 
                 {
-                    caption: "Link",
+                    caption: "Link Meeting",
                     calculateCellValue: d => d.link ? d.link : "-"
+                },
+
+                // =========================
+                // VIDEO RECORD COLUMN
+                // =========================
+                {
+                    caption: "Video Record",
+                    width: 220,
+                    cellTemplate(container, options) {
+
+                        const d = options.data;
+
+                        if (d.record_video) {
+
+                            $("<a>")
+                                .text("Lihat Video")
+                                .attr("href", d.record_video)
+                                .attr("target", "_blank")
+                                .addClass("px-3 py-1 bg-green-500 text-white rounded inline-block")
+                                .appendTo(container);
+
+                        } else {
+
+                            $("<span>")
+                                .text("Belum Upload")
+                                .addClass("text-gray-400 italic")
+                                .appendTo(container);
+                        }
+                    }
                 },
 
                 {
                     caption: "Aksi",
-                    width: 220,
+                    width: 340,
                     cellTemplate(container, options) {
+
                         const d = options.data;
 
+                        // =========================
+                        // OPEN LINK
+                        // =========================
                         if (d.link) {
+
                             $("<a>")
                                 .text("Open")
                                 .attr("href", d.link)
@@ -263,12 +344,27 @@
                                 .appendTo(container);
                         }
 
+                        // =========================
+                        // UPLOAD VIDEO BUTTON
+                        // =========================
+                        $("<button>")
+                            .text("Upload Record")
+                            .addClass("px-3 py-1 bg-purple-600 text-white rounded mr-2")
+                            .on("click", () => openUploadVideo(d))
+                            .appendTo(container);
+
+                        // =========================
+                        // EDIT BUTTON
+                        // =========================
                         $("<button>")
                             .text("Edit")
                             .addClass("px-3 py-1 bg-amber-500 text-white rounded mr-2")
                             .on("click", () => openEdit(d))
                             .appendTo(container);
 
+                        // =========================
+                        // DELETE BUTTON
+                        // =========================
                         $("<button>")
                             .text("Hapus")
                             .addClass("px-3 py-1 bg-red-500 text-white rounded")
@@ -391,5 +487,79 @@
                 toastr.error("Gagal menghapus schedule");
             });
         }
+
+        // OPEN MODAL
+        function openUploadVideo(data) {
+
+            $("#schedule_id").val(data.id);
+
+            $("#modalUploadVideo")
+                .removeClass("hidden")
+                .addClass("flex");
+        }
+
+        // CLOSE MODAL
+        function closeUploadVideo() {
+
+            $("#formUploadVideo")[0].reset();
+
+            $("#modalUploadVideo")
+                .removeClass("flex")
+                .addClass("hidden");
+        }
+
+        // SUBMIT UPLOAD
+        // SUBMIT UPLOAD
+        $("#formUploadVideo").submit(function(e) {
+
+            e.preventDefault();
+
+            let id = $("#schedule_id").val();
+
+            let formData = new FormData();
+
+            formData.append(
+                "record_video",
+                $("#record_video")[0].files[0]
+            );
+
+            formData.append(
+                "_token",
+                $('meta[name="csrf-token"]').attr("content")
+            );
+
+            $.ajax({
+                url: `/schedule/upload-record/${id}`,
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+
+                beforeSend() {
+
+                    toastr.info("Uploading video...");
+                },
+
+                success(res) {
+
+                    toastr.success(res.message);
+
+                    closeUploadVideo();
+
+                    grid.refresh();
+                },
+
+                error(xhr) {
+
+                    let msg = 'Upload gagal';
+
+                    if (xhr.responseJSON?.message) {
+                        msg = xhr.responseJSON.message;
+                    }
+
+                    toastr.error(msg);
+                }
+            });
+        });
     </script>
 </x-app-layout>

@@ -94,6 +94,11 @@ Route::middleware(['auth', 'level:1'])->group(function () {
         'schedule' => 'id'
     ]);
 
+    // routes/web.php
+
+    Route::post('/schedule/upload-record/{id}', [ScheduleController::class, 'uploadRecord'])
+        ->name('schedule.upload.record');
+
     // CLASS SESSION
     Route::resource('class-session', ClassSessionController::class)->parameters([
         'class-session' => 'id'

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Kelas;
 use App\Models\Jadwal;
 use App\Models\Absensi;
+use App\Models\Attendance;
 use App\Models\Order;
 use App\Models\Referral;
 use App\Models\Schedule;
@@ -300,6 +301,35 @@ class DashboardController extends Controller
             ->latest()
             ->get();
 
+
+        // =========================
+        // 🎥 HISTORY RECORDING
+        // =========================
+        $historyVideos = Attendance::with([
+            'session.schedule.kelas'
+        ])
+            ->where('user_id', $user->id)
+            ->where('is_present', 1)
+            ->get()
+            ->map(function ($attendance) {
+
+                $session = $attendance->session;
+                $schedule = $session?->schedule;
+
+                if (!$schedule || !$schedule->record_video) {
+                    return null;
+                }
+
+                return (object)[
+                    'kelas' => $schedule->kelas->nama_kelas ?? '-',
+                    'title' => $schedule->title,
+                    'date' => $schedule->date,
+                    'session' => $session->session_order ?? '-',
+                    'video' => asset($schedule->record_video),
+                ];
+            })
+            ->filter();
+
         return view('dashboard', compact(
             'totalKelas',
             'hadir',
@@ -309,7 +339,8 @@ class DashboardController extends Controller
             'jadwalMendatang',
             'myKelas',
             'referrals',
-            'certificates'
+            'certificates',
+            'historyVideos'
         ));
     }
 

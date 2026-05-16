@@ -16,7 +16,9 @@ class Schedule extends Model
         'is_last_session',
         'link',
         'start_time',
-        'end_time'
+        'end_time',
+        // TAMBAHAN
+        'record_video'
     ];
 
     /*

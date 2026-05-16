@@ -8,6 +8,7 @@ use App\Models\Kelas;
 use App\Models\Order;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
 
 class ScheduleController extends Controller
@@ -37,6 +38,47 @@ class ScheduleController extends Controller
         }
 
         return response()->json($schedule);
+    }
+
+    public function uploadRecord(Request $request, $id)
+    {
+        $request->validate([
+            'record_video' => 'required|mimes:mp4,mov,avi,mkv,webm|max:512000',
+        ]);
+
+        $schedule = Schedule::findOrFail($id);
+
+        // folder
+        $path = public_path('uploads/record-video');
+
+        // create folder if not exists
+        if (!File::exists($path)) {
+            File::makeDirectory($path, 0755, true);
+        }
+
+        // upload file
+        if ($request->hasFile('record_video')) {
+
+            $file = $request->file('record_video');
+
+            $filename = time() . '_' . $file->getClientOriginalName();
+
+            $file->move($path, $filename);
+
+            // delete old file
+            if ($schedule->record_video && File::exists(public_path($schedule->record_video))) {
+                File::delete(public_path($schedule->record_video));
+            }
+
+            $schedule->record_video = 'uploads/record-video/' . $filename;
+        }
+
+        $schedule->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Video record berhasil diupload'
+        ]);
     }
 
     public function store(Request $request)
