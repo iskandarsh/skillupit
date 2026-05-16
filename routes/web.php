@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AssignmentController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\ClassSessionController;
 use App\Http\Controllers\DashboardController;
@@ -67,7 +68,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
+    Route::get('/assignment/{assignment}', [AssignmentController::class, 'show'])
+        ->name('assignment.show');
+    Route::post('/assignment/{assignment}/submit', [AssignmentController::class, 'submit'])
+        ->name('assignment.submit');
+    Route::put('/assignment/submission/{id}', [AssignmentController::class, 'updatesubmit'])
+        ->name('assignment.submission.update');
     // Route::post('/absen/{session}', [AttendanceController::class, 'absen'])
     //     ->name('attendance.absen');
 
@@ -112,6 +118,12 @@ Route::middleware(['auth', 'level:1'])->group(function () {
 
     Route::get('/laporan/chart', [LaporanController::class, 'chart'])->name('laporan.chart');
     // Route::get('/referals/data', [ReferalController::class, 'data']);
+    Route::resource('assignments', AssignmentController::class);
+    Route::get('/assignments/{id}/submissions', [AssignmentController::class, 'submissions']);
+
+    // Route::put('/assignment-submissions/{id}', [AssignmentController::class, 'updateSubmission']);
+
+    Route::put('/submission/{id}/review', [AssignmentController::class, 'updateSubmission']);
 });
 Route::post('/checkout', [OrderController::class, 'checkout']);
 Route::get('kelas/{id}/modul/data', [ModulController::class, 'data']);

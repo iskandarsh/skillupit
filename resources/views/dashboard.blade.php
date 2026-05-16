@@ -501,6 +501,8 @@
 
                                 @endforelse
 
+
+
                             </div>
 
                         </div>
@@ -721,6 +723,257 @@
 
             </div>
         </div>
+
+        {{-- ASSIGNMENT --}}
+        <div class="space-y-6 mt-10">
+
+            <div class="flex items-center justify-between">
+
+                <div>
+                    <h3 class="text-2xl font-black text-gray-900 flex items-center gap-2">
+                        📝 Assignment
+                    </h3>
+
+                    <p class="text-sm text-gray-500 mt-1">
+                        Daftar tugas yang harus kamu kerjakan.
+                    </p>
+                </div>
+
+                <div class="px-4 py-2 rounded-2xl bg-amber-50 border border-amber-100">
+                    <span class="text-xs font-black tracking-wider text-amber-600 uppercase">
+                        {{ $assignments->count() }} Tasks
+                    </span>
+                </div>
+
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-5">
+
+                @forelse($assignments as $assignment)
+
+                @php
+                $submission = $assignment->submissions()
+                ->where('user_id', auth()->id())
+                ->latest()
+                ->first();
+
+                $submitted = $submission ? true : false;
+                $expired = $assignment->isExpired();
+                @endphp
+
+                <div class="group bg-white border border-gray-100 rounded-[2rem] p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+
+                    <div class="flex items-start justify-between gap-4">
+
+                        <div class="flex-1">
+
+                            <div class="flex flex-wrap items-center gap-2 mb-3">
+
+                                <span class="px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-widest">
+                                    Assignment
+                                </span>
+
+                                @if($submitted)
+
+                                <span class="px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase tracking-widest">
+                                    Submitted
+                                </span>
+
+                                @elseif($expired)
+
+                                <span class="px-3 py-1 rounded-full bg-rose-50 text-rose-600 text-[10px] font-black uppercase tracking-widest">
+                                    Expired
+                                </span>
+
+                                @else
+
+                                <span class="px-3 py-1 rounded-full bg-amber-50 text-amber-600 text-[10px] font-black uppercase tracking-widest">
+                                    Pending
+                                </span>
+
+                                @endif
+
+                            </div>
+
+                            <h4 class="text-xl font-black text-gray-900 leading-tight group-hover:text-indigo-600 transition-colors">
+                                {{ $assignment->title }}
+                            </h4>
+
+                            <p class="text-sm text-gray-500 mt-3 line-clamp-2 leading-relaxed">
+                                {{ $assignment->description }}
+                            </p>
+
+                        </div>
+
+                        <div class="w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center text-2xl shrink-0">
+                            📝
+                        </div>
+
+                    </div>
+
+                    <div class="mt-6 pt-5 border-t border-gray-100 space-y-4">
+
+                        <div class="flex items-start justify-between gap-4">
+
+                            <div>
+
+                                <p class="text-[10px] uppercase tracking-widest text-gray-400 font-bold">
+                                    Deadline
+                                </p>
+
+                                <p class="text-sm font-bold text-gray-700 mt-1">
+                                    {{ optional($assignment->deadline)->translatedFormat('d M Y • H:i') ?? '-' }}
+                                </p>
+
+                            </div>
+
+                            @if($submitted)
+
+                            <div class="text-right">
+
+                                <p class="text-[10px] uppercase tracking-widest text-gray-400 font-bold">
+                                    Score
+                                </p>
+
+                                <p class="text-lg font-black text-indigo-600 mt-1">
+                                    {{ $submission->score ?? '-' }}
+                                </p>
+
+                            </div>
+
+                            @endif
+
+                        </div>
+
+                        @if($submitted)
+
+
+
+                        <div class="rounded-2xl border border-emerald-100 bg-emerald-50 p-5">
+
+                            <div class="flex items-start justify-between gap-4">
+
+                                <div>
+                                    <div class="flex items-center gap-2">
+
+                                        <div class="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center">
+                                            ✅
+                                        </div>
+
+                                        <div>
+                                            <p class="text-sm font-black text-emerald-700">
+                                                Assignment Submitted
+                                            </p>
+
+                                            <p class="text-xs text-emerald-600 mt-1">
+                                                Tugas berhasil dikumpulkan
+                                            </p>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="mt-4 space-y-1">
+
+                                        <p class="text-sm text-gray-700">
+                                            <span class="font-bold">Judul:</span>
+                                            {{ $submission->title }}
+                                        </p>
+
+                                        <p class="text-sm text-gray-700">
+                                            <span class="font-bold">Status:</span>
+                                            {{ $submission->status }}
+                                        </p>
+
+                                        <p class="text-sm text-gray-700">
+                                            <span class="font-bold">Nilai:</span>
+                                            {{ $submission->score ?? '-' }}
+                                        </p>
+
+                                    </div>
+                                </div>
+
+                                <div class="flex flex-col gap-2">
+
+                                    <a href="{{ asset('storage/' . $submission->file) }}"
+                                        target="_blank"
+                                        class="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold text-center">
+                                        View File
+                                    </a>
+
+                                    @if(!$expired)
+                                    <button
+                                        type="button"
+                                        onclick="openAssignmentModal(
+                                    '{{ $assignment->id }}',
+                                    '{{ addslashes($assignment->title) }}',
+                                    `{{ addslashes($assignment->description) }}`,
+                                    '{{ optional($assignment->deadline)->translatedFormat('d M Y • H:i') }}',
+                                    '{{ $submission->title }}',
+                                    `{{ addslashes($submission->description) }}`,
+                                    '{{ $submission->id }}'
+                                )"
+                                        class="px-4 py-2 rounded-xl bg-amber-500 text-white text-xs font-bold">
+                                        Edit
+                                    </button>
+                                    @endif
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        @else
+
+                        <div class="flex justify-end">
+
+                            <button
+                                type="button"
+                                onclick="openAssignmentModal(
+                '{{ $assignment->id }}',
+                '{{ addslashes($assignment->title) }}',
+                `{{ addslashes($assignment->description) }}`,
+                '{{ optional($assignment->deadline)->translatedFormat('d M Y • H:i') }}'
+            )"
+                                class="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-slate-900 text-white text-sm font-bold hover:bg-indigo-600 hover:scale-[1.02] transition-all">
+
+                                <span>Open</span>
+                                <span>→</span>
+
+                            </button>
+
+                        </div>
+
+                        @endif
+
+                    </div>
+
+                </div>
+
+                @empty
+
+                <div class="col-span-full bg-gray-50 border border-dashed border-gray-200 rounded-[2rem] p-14 text-center">
+
+                    <div class="text-5xl mb-4">
+                        💤
+                    </div>
+
+                    <h4 class="text-xl font-black text-gray-800">
+                        Belum ada assignment
+                    </h4>
+
+                    <p class="text-sm text-gray-400 mt-2">
+                        Tugas dari mentor akan muncul di sini.
+                    </p>
+
+                </div>
+
+                @endforelse
+
+            </div>
+
+        </div>
+
     </div>
 
 
@@ -858,6 +1111,140 @@
                 </a>
             </div>
         </div>
+    </div>
+
+    {{-- ASSIGNMENT MODAL --}}
+    <div id="assignmentModal"
+        class="fixed inset-0 z-50 hidden items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+
+        <div class="bg-white w-full max-w-2xl rounded-[2rem] shadow-2xl overflow-hidden">
+
+            {{-- HEADER --}}
+            <div class="flex items-center justify-between px-6 py-5 border-b border-gray-100">
+
+                <div>
+
+                    <h3 id="assignmentModalTitle"
+                        class="text-2xl font-black text-gray-900">
+                    </h3>
+
+                    <p id="assignmentModalDeadline"
+                        class="text-sm text-gray-500 mt-2">
+                    </p>
+
+                </div>
+
+                <button
+                    type="button"
+                    onclick="closeAssignmentModal()"
+                    class="w-11 h-11 rounded-2xl bg-red-50 hover:bg-red-100 text-red-600 font-bold transition-all">
+
+                    ✕
+
+                </button>
+
+            </div>
+
+            {{-- BODY --}}
+            <div class="p-6">
+
+                <div class="mb-6">
+
+                    <p class="text-sm text-gray-600 leading-relaxed"
+                        id="assignmentModalDescription">
+                    </p>
+
+                </div>
+
+                <form id="assignmentSubmitForm"
+                    method="POST"
+                    enctype="multipart/form-data"
+                    class="space-y-5">
+
+                    @csrf
+                    <input type="hidden" name="_method" id="assignmentMethod" value="POST">
+                    <input type="hidden" name="submission_id" id="submissionId">
+                    {{-- TITLE --}}
+                    <div>
+
+                        <label class="block text-sm font-bold text-gray-700 mb-2">
+                            Judul Submission
+                        </label>
+
+                        <input
+                            type="text"
+                            name="title"
+                            id="submissionTitle"
+                            required
+                            class="w-full rounded-2xl border-gray-200 focus:ring-indigo-500 focus:border-indigo-500"
+                            placeholder="Contoh: Tugas Landing Page">
+
+                    </div>
+
+                    {{-- DESCRIPTION --}}
+                    <div>
+
+                        <label class="block text-sm font-bold text-gray-700 mb-2">
+                            Deskripsi
+                        </label>
+
+                        <textarea
+                            name="description"
+                            id="submissionDescription"
+                            rows="4"
+                            class="w-full rounded-2xl border-gray-200 focus:ring-indigo-500 focus:border-indigo-500"
+                            placeholder="Tambahkan catatan tugas..."></textarea>
+
+                    </div>
+
+                    {{-- FILE --}}
+                    <div>
+
+                        <label class="block text-sm font-bold text-gray-700 mb-2">
+                            Upload File
+                        </label>
+
+                        <input
+                            type="file"
+                            name="file"
+                            id="assignmentFile"
+                            required
+                            class="block w-full rounded-2xl border border-gray-200 p-3 text-sm">
+
+                        <p class="text-xs text-gray-400 mt-2">
+                            PDF, ZIP, RAR, DOC, DOCX (max 10MB)
+                        </p>
+
+                    </div>
+
+                    {{-- BUTTON --}}
+                    <div class="pt-3 flex items-center justify-end gap-3">
+
+                        <button
+                            type="button"
+                            onclick="closeAssignmentModal()"
+                            class="px-5 py-3 rounded-2xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold transition-all">
+
+                            Batal
+
+                        </button>
+
+                        <button
+                            type="submit"
+                            class="px-6 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold transition-all">
+
+                            Submit Assignment 🚀
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
     </div>
 
     <style>
@@ -1045,5 +1432,156 @@
                 }
             });
         });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        function openAssignmentModal(
+            id,
+            title,
+            description,
+            deadline,
+            submissionTitle = '',
+            submissionDescription = '',
+            submissionId = null
+        ) {
+
+            const modal = document.getElementById('assignmentModal');
+
+            document.getElementById('assignmentModalTitle').innerText = title;
+
+            document.getElementById('assignmentModalDescription').innerText = description;
+
+            document.getElementById('assignmentModalDeadline').innerText =
+                'Deadline: ' + deadline;
+
+            const form = document.getElementById('assignmentSubmitForm');
+
+            const titleInput = document.getElementById('submissionTitle');
+
+            const descInput = document.getElementById('submissionDescription');
+
+            const methodInput = document.getElementById('assignmentMethod');
+
+            const submissionIdInput = document.getElementById('submissionId');
+
+            const fileInput = document.getElementById('assignmentFile');
+
+            // RESET FILE INPUT
+            fileInput.value = '';
+
+            titleInput.value = submissionTitle;
+            descInput.value = submissionDescription;
+
+            if (submissionId) {
+
+                form.action = `/assignment/submission/${submissionId}`;
+
+                methodInput.value = 'PUT';
+
+                submissionIdInput.value = submissionId;
+
+                fileInput.required = false;
+
+                showToast('Mode edit submission', 'info');
+
+            } else {
+
+                form.action = `/assignment/${id}/submit`;
+
+                methodInput.value = 'POST';
+
+                submissionIdInput.value = '';
+
+                fileInput.required = true;
+
+                showToast('Mode submit assignment', 'success');
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            document.body.classList.add('overflow-hidden');
+        }
+
+        function closeAssignmentModal() {
+
+            const modal = document.getElementById('assignmentModal');
+
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+
+            document.body.classList.remove('overflow-hidden');
+
+            showToast('Modal ditutup', 'info');
+        }
+
+        // CLOSE CLICK OUTSIDE
+        document.getElementById('assignmentModal')
+            .addEventListener('click', function(e) {
+
+                if (e.target === this) {
+                    closeAssignmentModal();
+                }
+            });
+
+        // TOAST
+        function showToast(
+            message = 'Berhasil',
+            type = 'success'
+        ) {
+
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: type,
+                title: message,
+                showConfirmButton: false,
+                timer: 2500,
+                timerProgressBar: true,
+                customClass: {
+                    popup: 'rounded-3xl shadow-2xl'
+                }
+            });
+        }
+
+        // SUBMIT FORM
+        document.getElementById('assignmentSubmitForm')
+            .addEventListener('submit', function() {
+
+                const submitBtn = this.querySelector('button[type="submit"]');
+
+                submitBtn.disabled = true;
+
+                submitBtn.innerHTML = `
+                <span class="flex items-center gap-2">
+                    <svg class="animate-spin h-4 w-4"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24">
+
+                        <circle
+                            class="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            stroke-width="4">
+                        </circle>
+
+                        <path
+                            class="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8v8z">
+                        </path>
+
+                    </svg>
+
+                    Uploading...
+                </span>
+            `;
+
+                showToast('Assignment sedang dikirim 🚀', 'success');
+            });
     </script>
 </x-app-layout>

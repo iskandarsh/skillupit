@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Kelas;
 use App\Models\Jadwal;
 use App\Models\Absensi;
+use App\Models\Assignment;
 use App\Models\Attendance;
 use App\Models\Order;
 use App\Models\Referral;
@@ -329,6 +330,20 @@ class DashboardController extends Controller
                 ];
             })
             ->filter();
+        $myKelasIds = $myKelas->pluck('id');
+
+
+        $assignments = Assignment::with([
+            'session.schedule.kelas',
+            'submissions' => function ($q) {
+                $q->where('user_id', auth()->id());
+            }
+        ])
+            ->whereHas('session.schedule', function ($q) use ($myKelasIds) {
+                $q->whereIn('kelas_id', $myKelasIds);
+            })
+            ->latest()
+            ->get();
 
         return view('dashboard', compact(
             'totalKelas',
@@ -340,7 +355,8 @@ class DashboardController extends Controller
             'myKelas',
             'referrals',
             'certificates',
-            'historyVideos'
+            'historyVideos',
+            'assignments'
         ));
     }
 

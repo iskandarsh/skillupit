@@ -39,7 +39,8 @@
                         <!-- BUTTON -->
                         <button @click="open = !open"
                             class="px-4 py-2 rounded-xl text-sm font-medium transition flex items-center gap-2
-{{ request()->routeIs('kelas.*') || request()->routeIs('referral.*') || request()->routeIs('mentor.*') || request()->routeIs('schedule.*')
+{{ request()->routeIs('kelas.*') || request()->routeIs('referral.*') || request()->routeIs('mentor.*') || request()->routeIs('schedule.*')||
+   request()->routeIs('assignments.*')
     ? 'bg-indigo-100 text-indigo-600 shadow-sm'
     : 'text-gray-600 hover:bg-gray-100' }}">
 
@@ -86,7 +87,12 @@
                                 {{ request()->routeIs('schedule.*') ? 'text-indigo-600 font-semibold' : 'text-gray-700' }}">
                                 📅 Schedule
                             </a>
-
+                            <!-- ASSIGNMENT -->
+                            <a href="{{ route('assignments.index') }}"
+                                class="block px-4 py-2 text-sm hover:bg-gray-100 
+    {{ request()->routeIs('assignments.*') ? 'text-indigo-600 font-semibold' : 'text-gray-700' }}">
+                                📝 Assignment
+                            </a>
                         </div>
 
 
@@ -224,6 +230,14 @@
             Schedule
         </a>
 
+        <!-- ASSIGNMENT -->
+        <a href="{{ route('assignments.index') }}"
+            class="block px-4 py-2 rounded-xl text-sm font-medium
+    {{ request()->routeIs('assignments.*') 
+        ? 'bg-indigo-100 text-indigo-600' 
+        : 'text-gray-600 hover:bg-gray-100' }}">
+            Assignment
+        </a>
         <!-- LAPORAN -->
         <a href="{{ route('laporan.index') }}"
             class="block px-4 py-2 rounded-xl text-sm font-medium
