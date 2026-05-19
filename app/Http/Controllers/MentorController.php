@@ -30,6 +30,8 @@ class MentorController extends Controller
             'photo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'kelas_ids' => 'nullable|array',
             'kelas_ids.*' => 'exists:kelas,id',
+            'instagram_url' => 'nullable|url|max:255',
+            'linkedin_url' => 'nullable|url|max:255',
         ]);
 
         // 🔥 VALIDASI KELAS SUDAH ADA MENTOR
@@ -47,6 +49,8 @@ class MentorController extends Controller
             'job_title' => $request->job_title,
             'bio' => $request->bio,
             'photo' => $photoPath,
+            'instagram_url' => $request->instagram_url,
+            'linkedin_url' => $request->linkedin_url,
         ]);
 
         $mentor->kelas()->sync($request->kelas_ids ?? []);
@@ -69,6 +73,8 @@ class MentorController extends Controller
             'photo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'kelas_ids' => 'nullable|array',
             'kelas_ids.*' => 'exists:kelas,id',
+            'instagram_url' => 'nullable|url|max:255',
+            'linkedin_url' => 'nullable|url|max:255',
         ]);
 
         // 🔥 VALIDASI (exclude mentor ini sendiri)
@@ -90,6 +96,8 @@ class MentorController extends Controller
             'job_title' => $request->job_title,
             'bio' => $request->bio,
             'photo' => $photoPath,
+            'instagram_url' => $request->instagram_url,
+            'linkedin_url' => $request->linkedin_url,
         ]);
 
         $mentor->kelas()->sync($request->kelas_ids ?? []);

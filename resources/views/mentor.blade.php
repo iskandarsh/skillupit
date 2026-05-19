@@ -45,6 +45,17 @@
                 <label class="block text-sm font-semibold mb-1">Job Title</label>
                 <input type="text" id="job_title" class="w-full border rounded-xl p-2" placeholder="Contoh: Laravel Developer">
             </div>
+            <div>
+                <label class="block text-sm font-semibold mb-1">Instagram URL</label>
+                <input type="url" id="instagram_url" class="w-full border rounded-xl p-2"
+                    placeholder="https://instagram.com/username">
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold mb-1">LinkedIn URL</label>
+                <input type="url" id="linkedin_url" class="w-full border rounded-xl p-2"
+                    placeholder="https://linkedin.com/in/username">
+            </div>
 
             <div>
                 <label class="block text-sm font-semibold mb-1">Bio</label>
@@ -191,6 +202,40 @@
                     caption: "Job Title"
                 },
                 {
+                    dataField: "instagram_url",
+                    caption: "Instagram",
+                    cellTemplate: function(container, options) {
+                        const url = options.data.instagram_url;
+                        if (url) {
+                            $("<a>")
+                                .attr("href", url)
+                                .attr("target", "_blank")
+                                .addClass("text-pink-500 underline")
+                                .text("IG")
+                                .appendTo(container);
+                        } else {
+                            $("<span>").text("-").appendTo(container);
+                        }
+                    }
+                },
+                {
+                    dataField: "linkedin_url",
+                    caption: "LinkedIn",
+                    cellTemplate: function(container, options) {
+                        const url = options.data.linkedin_url;
+                        if (url) {
+                            $("<a>")
+                                .attr("href", url)
+                                .attr("target", "_blank")
+                                .addClass("text-blue-600 underline")
+                                .text("LinkedIn")
+                                .appendTo(container);
+                        } else {
+                            $("<span>").text("-").appendTo(container);
+                        }
+                    }
+                },
+                {
                     dataField: "bio",
                     caption: "Bio"
                 },
@@ -229,7 +274,8 @@
             $('#job_title').val('');
             $('#bio').val('');
             $('#old_photo').val('');
-
+            $('#instagram_url').val('');
+            $('#linkedin_url').val('');
             $('#current_photo_wrap').addClass('hidden');
             $('#current_photo').attr('src', '');
 
@@ -249,7 +295,8 @@
             $('#job_title').val(d.job_title || '');
             $('#bio').val(d.bio || '');
             $('#old_photo').val(d.photo || '');
-
+            $('#instagram_url').val(d.instagram_url || '');
+            $('#linkedin_url').val(d.linkedin_url || '');
             resetPhotoPreview();
 
             if (d.photo) {
@@ -280,7 +327,8 @@
             formData.append('email', $('#email').val());
             formData.append('job_title', $('#job_title').val());
             formData.append('bio', $('#bio').val());
-
+            formData.append('instagram_url', $('#instagram_url').val());
+            formData.append('linkedin_url', $('#linkedin_url').val());
             const kelasIds = $('#kelas_ids').val() || [];
             kelasIds.forEach(k => formData.append('kelas_ids[]', k));
 

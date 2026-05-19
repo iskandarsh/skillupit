@@ -17,12 +17,19 @@ use App\Models\Kelas;
 use App\Models\Mentor;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PaymentCallbackController;
+use Illuminate\Http\Request;
 
-Route::get('/', function () {
-    $kelas = Kelas::with('mentors')
-        ->where('is_active', 1)
-        ->latest()
-        ->paginate(3);
+Route::get('/', function (Request $request) {
+
+    $query = Kelas::with('mentors')
+        ->where('is_active', 1);
+
+    // 🔥 FILTER KATEGORI
+    if ($request->kategori) {
+        $query->where('kategori', $request->kategori);
+    }
+
+    $kelas = $query->latest()->paginate(3);
 
     $mentors = Mentor::with('kelas')
         ->latest()

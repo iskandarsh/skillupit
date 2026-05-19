@@ -28,6 +28,7 @@ class KelasController extends Controller
             'thumbnail'   => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'is_active'   => 'nullable',
             'periode'     => 'nullable|date',
+            'kategori'    => 'nullable|in:IT,Academic',
         ]);
 
         $isActive = 0;
@@ -50,6 +51,7 @@ class KelasController extends Controller
             'harga_coret'  => $request->harga_coret,
             'is_active'   => $isActive,
             'periode'     => $periode,
+            'kategori'    => $request->kategori,
         ];
 
         if ($request->hasFile('thumbnail')) {
@@ -86,6 +88,7 @@ class KelasController extends Controller
             'thumbnail'   => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'is_active'   => 'nullable',
             'periode'     => 'nullable|date',
+            'kategori'    => 'nullable|in:IT,Academic',
         ]);
 
         $inputs = $request->all();

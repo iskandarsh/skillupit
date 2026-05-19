@@ -61,7 +61,7 @@
 
         <div class="hidden md:flex space-x-8 font-medium text-sm">
             <a href="#kelas" class="nav-link hover:text-blue-600 transition">Materi</a>
-            <!-- <a href="#kelas" class="nav-link hover:text-blue-600 transition">Kelas</a> -->
+            <a href="#harga" class="nav-link hover:text-blue-600 transition">Pricing</a>
             <a href="#testimoni" class="nav-link hover:text-blue-600 transition">Testimoni</a>
         </div>
 
@@ -93,8 +93,8 @@
                 <a href="#kelas" class="px-8 py-4 bg-blue-600 text-white rounded-2xl shadow-2xl shadow-blue-300 hover:scale-105 transition-all font-bold">
                     Mulai Belajar Sekarang
                 </a>
-                <a href="#kelas" class="px-8 py-4 glass rounded-2xl border border-slate-200 hover:bg-white transition-all font-bold">
-                    Lihat Kelas
+                <a href="#harga" class="px-8 py-4 glass rounded-2xl border border-slate-200 hover:bg-white transition-all font-bold">
+                    Lihat Paket Harga
                 </a>
             </div>
         </div>
@@ -128,38 +128,13 @@
         </div>
 
         <div class="max-w-7xl mx-auto px-6 relative z-10">
-            <div class="text-center max-w-2xl mx-auto mb-10">
+            <div class="text-center max-w-2xl mx-auto mb-16">
                 <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight text-slate-900 mb-4">
                     Kelas <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Populer</span>
                 </h2>
                 <p class="text-slate-500 text-lg leading-relaxed">
                     Investasi terbaik adalah investasi pada dirimu sendiri. Mulai belajar dengan kurikulum berstandar industri.
                 </p>
-            </div>
-
-            @php
-            $activeKategori = request('kategori');
-            @endphp
-
-            {{-- FILTER KATEGORI --}}
-            <div class="flex flex-wrap items-center justify-center gap-3 mb-12">
-                <a href="{{ url()->current() }}"
-                    class="px-4 py-2 rounded-xl text-sm font-semibold border transition-all duration-300
-               {{ !$activeKategori ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-50' }}">
-                    Semua
-                </a>
-
-                <a href="{{ request()->fullUrlWithQuery(['kategori' => 'IT']) }}"
-                    class="px-4 py-2 rounded-xl text-sm font-semibold border transition-all duration-300
-               {{ $activeKategori === 'IT' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-700 border-slate-200 hover:border-blue-200 hover:bg-blue-50' }}">
-                    💻 IT
-                </a>
-
-                <a href="{{ request()->fullUrlWithQuery(['kategori' => 'Academic']) }}"
-                    class="px-4 py-2 rounded-xl text-sm font-semibold border transition-all duration-300
-               {{ $activeKategori === 'Academic' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-700 border-slate-200 hover:border-indigo-200 hover:bg-indigo-50' }}">
-                    🎓 Academic
-                </a>
             </div>
 
             <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3 items-stretch">
@@ -185,24 +160,6 @@
                                 <span class="text-orange-500">★</span> Populer
                             </span>
                         </div>
-
-                        @if($item->kategori)
-                        <div class="absolute right-3 top-3">
-                            @if($item->kategori === 'IT')
-                            <span class="flex items-center gap-1 rounded-full bg-blue-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm backdrop-blur-md">
-                                💻 IT
-                            </span>
-                            @elseif($item->kategori === 'Academic')
-                            <span class="flex items-center gap-1 rounded-full bg-indigo-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm backdrop-blur-md">
-                                🎓 Academic
-                            </span>
-                            @else
-                            <span class="flex items-center gap-1 rounded-full bg-slate-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm backdrop-blur-md">
-                                {{ $item->kategori }}
-                            </span>
-                            @endif
-                        </div>
-                        @endif
                     </div>
 
                     <div class="flex flex-1 flex-col p-5">
@@ -288,13 +245,12 @@
             @if($kelas->hasPages())
             <div class="mt-16 flex justify-center">
                 <div class="bg-white p-2 rounded-2xl shadow-sm border border-slate-200">
-                    {{ $kelas->appends(request()->query())->links() }}
+                    {{ $kelas->links() }}
                 </div>
             </div>
             @endif
         </div>
     </section>
-
     <section class="py-28 bg-gradient-to-b from-white via-slate-50 to-white overflow-hidden border-t border-slate-100 relative">
 
         <!-- Blur Background -->
@@ -378,34 +334,6 @@
                             {{ $mentor->bio ?? 'Praktisi industri yang siap membagikan pengalaman dan membimbing kamu meraih karir impian.' }}
                         </p>
 
-                        @if($mentor->instagram_url || $mentor->linkedin_url)
-                        <div class="flex items-center justify-center gap-3 mb-4">
-
-                            @if($mentor->instagram_url)
-                            <a href="{{ $mentor->instagram_url }}" target="_blank"
-                                class="text-pink-500 hover:text-pink-600 transition">
-                                <!-- Instagram Icon -->
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M7.75 2h8.5A5.75 5.75 0 0122 7.75v8.5A5.75 5.75 0 0116.25 22h-8.5A5.75 5.75 0 012 16.25v-8.5A5.75 5.75 0 017.75 2zm0 1.5A4.25 4.25 0 003.5 7.75v8.5A4.25 4.25 0 007.75 20.5h8.5a4.25 4.25 0 004.25-4.25v-8.5A4.25 4.25 0 0016.25 3.5h-8.5z" />
-                                    <path d="M12 7a5 5 0 110 10 5 5 0 010-10zm0 1.5a3.5 3.5 0 100 7 3.5 3.5 0 000-7z" />
-                                    <circle cx="17.2" cy="6.8" r="1.2" />
-                                </svg>
-                            </a>
-                            @endif
-
-                            @if($mentor->linkedin_url)
-                            <a href="{{ $mentor->linkedin_url }}" target="_blank"
-                                class="text-blue-600 hover:text-blue-700 transition">
-                                <!-- LinkedIn Icon -->
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.37V9h3.41v1.56h.05c.47-.9 1.6-1.85 3.29-1.85 3.52 0 4.17 2.32 4.17 5.33v6.41zM5.34 7.43a2.06 2.06 0 11-.01-4.12 2.06 2.06 0 01.01 4.12zM6.91 20.45H3.77V9h3.14v11.45z" />
-                                </svg>
-                            </a>
-                            @endif
-
-                        </div>
-                        @endif
-
                         <!-- Stats -->
                         <div class="mt-auto pt-5 border-t border-slate-100 flex items-center justify-center gap-3">
 
@@ -454,7 +382,7 @@
         </div>
     </section>
 
-    <!-- <section id="harga" class="py-24 bg-slate-900 text-white overflow-hidden">
+    <section id="harga" class="py-24 bg-slate-900 text-white overflow-hidden">
         <div class="max-w-6xl mx-auto px-6">
             <div class="text-center mb-16" data-aos="fade-up">
                 <h2 class="text-4xl font-black mb-4">Investasia yang Masuk Akal</h2>
@@ -528,7 +456,7 @@
                 </div>
             </div>
         </div>
-    </section> -->
+    </section>
 
     <section id="testimoni" class="py-24 bg-slate-50 border-t border-slate-100 overflow-hidden">
         <div class="max-w-7xl mx-auto px-6">

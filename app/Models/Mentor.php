@@ -11,7 +11,9 @@ class Mentor extends Model
         'email',
         'photo',
         'job_title',
-        'bio'
+        'bio',
+        'instagram_url',
+        'linkedin_url',
     ];
 
     public function kelas()

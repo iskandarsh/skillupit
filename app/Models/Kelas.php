@@ -17,7 +17,8 @@ class Kelas extends Model
         'harga_coret',
         'thumbnail', // <-- Pastikan ini ada!
         'is_active',   // status aktif / tidak
-        'periode'      // periode kelas (misal: "Juni 2026" atau "Batch 1")
+        'periode',      // periode kelas (misal: "Juni 2026" atau "Batch 1")
+        'kategori', // 👈 tambahkan ini
     ];
 
     public function orders()

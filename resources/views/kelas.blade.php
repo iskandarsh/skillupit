@@ -73,171 +73,14 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-semibold mb-1">Thumbnail</label>
-                    <input type="file" accept="image/*" id="create_thumbnail"
-                        class="w-full rounded-xl border border-gray-300 p-2 bg-white">
-                    <div id="create_preview_wrap" class="mt-3 hidden">
-                        <img id="create_preview" src="" class="w-28 h-28 object-cover rounded-xl border">
-                    </div>
-                    <div class="text-red-500 text-sm mt-1 error-text" id="error_create_thumbnail"></div>
-                </div>
-
-                <div class="flex items-center gap-3">
-                    <input type="checkbox" id="create_is_active" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500">
-                    <label for="create_is_active" class="text-sm font-semibold text-gray-700">Aktif</label>
-                </div>
-
-                <div class="flex justify-end gap-3 pt-4 border-t">
-                    <button type="button" onclick="closeCreateModal()"
-                        class="px-4 py-2 rounded-xl border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">
-                        Batal
-                    </button>
-                    <button type="submit"
-                        class="px-5 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 font-semibold">
-                        Simpan
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    {{-- MODAL EDIT --}}
-    <div id="modalEditKelas" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-        <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl max-h-[95vh] overflow-y-auto">
-            <div class="flex items-center justify-between border-b px-6 py-4">
-                <h3 class="text-lg font-bold text-gray-800">Edit Kelas</h3>
-                <button type="button" class="text-gray-500 hover:text-gray-700 text-2xl" onclick="closeEditModal()">&times;</button>
-            </div>
-
-            <form id="formEditKelas" class="px-6 py-5 space-y-4">
-                <input type="hidden" id="edit_id">
-                <input type="hidden" id="edit_old_thumbnail">
-
-                <div>
-                    <label class="block text-sm font-semibold mb-1">Nama Kelas</label>
-                    <input type="text" name="nama_kelas" id="edit_nama_kelas"
+                    <label class="block text-sm font-semibold mb-1">Kategori</label>
+                    <select name="kategori" id="create_kategori"
                         class="w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
-                    <div class="text-red-500 text-sm mt-1 error-text" id="error_edit_nama_kelas"></div>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-semibold mb-1">Deskripsi</label>
-                    <textarea name="deskripsi" id="edit_deskripsi" rows="4"
-                        class="w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"></textarea>
-                    <div class="text-red-500 text-sm mt-1 error-text" id="error_edit_deskripsi"></div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-semibold mb-1">Harga</label>
-                        <input type="text" name="harga" id="edit_harga"
-                            class="w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
-                            inputmode="numeric"
-                            placeholder="Rp 0">
-                        <div class="text-red-500 text-sm mt-1 error-text" id="error_edit_harga"></div>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-semibold mb-1">Harga Coret</label>
-                        <input type="text" name="harga_coret" id="edit_harga_coret"
-                            class="w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
-                            inputmode="numeric"
-                            placeholder="Rp 0">
-                        <div class="text-red-500 text-sm mt-1 error-text" id="error_edit_harga_coret"></div>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-semibold mb-1">Periode</label>
-                    <input type="date" name="periode" id="edit_periode"
-                        class="w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
-                    <div class="text-red-500 text-sm mt-1 error-text" id="error_edit_periode"></div>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-semibold mb-1">Thumbnail Baru</label>
-                    <input type="file" accept="image/*" id="edit_thumbnail"
-                        class="w-full rounded-xl border border-gray-300 p-2 bg-white">
-                    <div id="edit_preview_wrap" class="mt-3 hidden">
-                        <img id="edit_preview" src="" class="w-28 h-28 object-cover rounded-xl border">
-                    </div>
-                    <div class="text-red-500 text-sm mt-1 error-text" id="error_edit_thumbnail"></div>
-                </div>
-
-                <div>
-                    <p class="text-sm font-semibold mb-2">Thumbnail Lama</p>
-                    <img id="edit_current_thumbnail" src="" class="w-28 h-28 object-cover rounded-xl border hidden">
-                </div>
-
-                <div class="flex items-center gap-3">
-                    <input type="checkbox" id="edit_is_active" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500">
-                    <label for="edit_is_active" class="text-sm font-semibold text-gray-700">Aktif</label>
-                </div>
-
-                <div class="flex justify-end gap-3 pt-4 border-t">
-                    <button type="button" onclick="closeEditModal()"
-                        class="px-4 py-2 rounded-xl border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">
-                        Batal
-                    </button>
-                    <button type="submit"
-                        class="px-5 py-2 rounded-xl bg-amber-600 text-white hover:bg-amber-700 font-semibold">
-                        Update
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    {{-- MODAL CREATE --}}
-    <div id="modalCreateKelas" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-        <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl max-h-[95vh] overflow-y-auto">
-            <div class="flex items-center justify-between border-b px-6 py-4">
-                <h3 class="text-lg font-bold text-gray-800">Tambah Kelas</h3>
-                <button type="button" class="text-gray-500 hover:text-gray-700 text-2xl" onclick="closeCreateModal()">&times;</button>
-            </div>
-
-            <form id="formCreateKelas" class="px-6 py-5 space-y-4">
-                <div>
-                    <label class="block text-sm font-semibold mb-1">Nama Kelas</label>
-                    <input type="text" name="nama_kelas" id="create_nama_kelas"
-                        class="w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
-                        placeholder="Masukkan nama kelas">
-                    <div class="text-red-500 text-sm mt-1 error-text" id="error_create_nama_kelas"></div>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-semibold mb-1">Deskripsi</label>
-                    <textarea name="deskripsi" id="create_deskripsi" rows="4"
-                        class="w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
-                        placeholder="Masukkan deskripsi"></textarea>
-                    <div class="text-red-500 text-sm mt-1 error-text" id="error_create_deskripsi"></div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-semibold mb-1">Harga</label>
-                        <input type="text" name="harga" id="create_harga"
-                            class="w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
-                            inputmode="numeric"
-                            placeholder="Rp 0">
-                        <div class="text-red-500 text-sm mt-1 error-text" id="error_create_harga"></div>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-semibold mb-1">Harga Coret</label>
-                        <input type="text" name="harga_coret" id="create_harga_coret"
-                            class="w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
-                            inputmode="numeric"
-                            placeholder="Rp 0">
-                        <div class="text-red-500 text-sm mt-1 error-text" id="error_create_harga_coret"></div>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-semibold mb-1">Periode</label>
-                    <input type="date" name="periode" id="create_periode"
-                        class="w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
-                    <div class="text-red-500 text-sm mt-1 error-text" id="error_create_periode"></div>
+                        <option value="">-- Pilih Kategori --</option>
+                        <option value="IT">IT</option>
+                        <option value="Academic">Academic</option>
+                    </select>
+                    <div class="text-red-500 text-sm mt-1 error-text" id="error_create_kategori"></div>
                 </div>
 
                 <div>
@@ -321,7 +164,16 @@
                         class="w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
                     <div class="text-red-500 text-sm mt-1 error-text" id="error_edit_periode"></div>
                 </div>
-
+                <div>
+                    <label class="block text-sm font-semibold mb-1">Kategori</label>
+                    <select name="kategori" id="edit_kategori"
+                        class="w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
+                        <option value="">-- Pilih Kategori --</option>
+                        <option value="IT">IT</option>
+                        <option value="Academic">Academic</option>
+                    </select>
+                    <div class="text-red-500 text-sm mt-1 error-text" id="error_edit_kategori"></div>
+                </div>
                 <div>
                     <label class="block text-sm font-semibold mb-1">Thumbnail Baru</label>
                     <input type="file" accept="image/*" id="edit_thumbnail"
@@ -650,7 +502,7 @@
                 formData.append('harga_coret', stripRupiah($('#create_harga_coret').val()) || 0);
                 formData.append('periode', $('#create_periode').val() || '');
                 formData.append('is_active', $('#create_is_active').is(':checked') ? 1 : 0);
-
+                formData.append('kategori', $('#create_kategori').val() || '');
                 if (createSelectedFile) {
                     formData.append('thumbnail', createSelectedFile);
                 }
@@ -684,6 +536,7 @@
                 formData.append('harga', stripRupiah($('#edit_harga').val()) || 0);
                 formData.append('harga_coret', stripRupiah($('#edit_harga_coret').val()) || 0);
                 formData.append('periode', $('#edit_periode').val() || '');
+                formData.append('kategori', $('#edit_kategori').val() || '');
                 formData.append('is_active', $('#edit_is_active').is(':checked') ? 1 : 0);
                 formData.append('_method', 'PUT');
 
@@ -856,6 +709,30 @@
                         }
                     },
                     {
+                        dataField: "kategori",
+                        caption: "Kategori",
+                        alignment: "center",
+                        cellTemplate: function(container, options) {
+                            const val = options.data.kategori;
+
+                            let color = "#64748b";
+                            if (val === "IT") color = "#2563eb";
+                            if (val === "Academic") color = "#7c3aed";
+
+                            $("<span>")
+                                .text(val || "-")
+                                .css({
+                                    padding: "5px 10px",
+                                    background: color,
+                                    color: "white",
+                                    borderRadius: "20px",
+                                    fontSize: "11px",
+                                    fontWeight: "bold"
+                                })
+                                .appendTo(container);
+                        }
+                    },
+                    {
                         dataField: "harga_coret",
                         caption: "Harga Coret",
                         customizeText: function(e) {
@@ -900,7 +777,7 @@
                                     setMoneyValue('#edit_harga_coret', data.harga_coret || '');
                                     $('#edit_periode').val(formatDateToInput(data.periode));
                                     $('#edit_is_active').prop('checked', data.is_active == 1 || data.is_active === true);
-
+                                    $('#edit_kategori').val(data.kategori || '');
                                     $('#edit_old_thumbnail').val(data.thumbnail || '');
 
                                     if (data.thumbnail) {
