@@ -16,6 +16,7 @@ use App\Http\Controllers\ScheduleController;
 use App\Models\Kelas;
 use App\Models\Mentor;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PaymentCallbackController;
 
 Route::get('/', function () {
     $kelas = Kelas::with('mentors')
@@ -129,7 +130,7 @@ Route::post('/checkout', [OrderController::class, 'checkout']);
 Route::get('kelas/{id}/modul/data', [ModulController::class, 'data']);
 Route::post('kelas/{id}/modul', [ModulController::class, 'store']);
 Route::delete('/modul/{id}', [ModulController::class, 'destroy']);
-
+// Route::post('/payment/callback', [PaymentCallbackController::class, 'handle']);
 
 Route::get('/check-referral', [ReferalController::class, 'checkReferral']);
 
